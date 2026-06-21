@@ -1,17 +1,30 @@
-# Smart Hall & Roommate Matching Management System
+# NestSync - Smart Hall & Roommate Matching Management System
 
-Initial database-focused scaffold for an Oracle-based hall management project.
+Beginner-friendly web database project using:
 
-## Included in this first slice
+- Frontend: HTML, CSS, JavaScript
+- Backend: Core PHP
+- Database: Oracle SQL and PL/SQL
 
-- Core schema for users, halls, rooms, seats, booking requests, and roommate preferences
-- Starter PL/SQL package for roommate matching
-- Basic booking and seat availability reporting views
-- Foundation for role-based access and booking workflow
+## Step 1 Completed
 
-## Next planned slices
+- Project folder structure for web app development
+- Oracle core schema with required tables:
+	- USERS
+	- HALLS
+	- ROOMS
+	- SEATS
+	- BOOKINGS
+	- ROOMMATE_MATCHES
+- Sample data for initial testing
 
-- Booking approval workflow and history tracking
-- Search, filter, and sorting queries
-- Analytics views and reporting procedures
-- Seed data and test cases
+## SQL Run Order (Oracle)
+
+1. `sql/01_core_schema.sql`
+2. `sql/02_roommate_matching.sql`
+
+`sql/03_booking_workflow.sql` is intentionally a placeholder for the next steps.
+
+## Project Structure Guide
+
+See: `docs/step-01-project-structure.md`
