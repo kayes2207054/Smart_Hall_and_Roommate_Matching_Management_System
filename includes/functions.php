@@ -210,17 +210,16 @@ function renderPagination(int $total, int $currentPage, int $perPage, string $ba
 // Notifications
 // ================================================================
 
-function getUnreadNotifCount(mysqli $conn): int
+function getUnreadNotifCount($conn = null): int
 {
     if (!isset($_SESSION['user_id'])) return 0;
-    $uid  = (int)$_SESSION['user_id'];
-    $stmt = $conn->prepare('SELECT COUNT(*) FROM notifications WHERE user_id = ? AND is_read = 0');
-    $stmt->bind_param('i', $uid);
-    $stmt->execute();
-    $stmt->bind_result($cnt);
-    $stmt->fetch();
-    $stmt->close();
-    return (int)$cnt;
+    $uid = (int)$_SESSION['user_id'];
+    // Uses the OCI8 helper defined in config/db.php
+    $count = oci_fetch_scalar(
+        'SELECT COUNT(*) FROM notifications WHERE user_id = :uid AND is_read = 0',
+        [':uid' => $uid]
+    );
+    return (int)($count ?? 0);
 }
 
 // ================================================================
@@ -285,53 +284,46 @@ function calculateMatchScore(array $s1, array $s2): array
  * Run matching engine for a single student against all other active students
  * and store results in roommate_matches table.
  */
-function runMatchingForStudent(mysqli $conn, int $studentId): int
+/**
+ * Run the matching engine for a single student against all other active students.
+ * Delegates to the Oracle stored procedure sp_calculate_match for each pair,
+ * which handles MERGE (insert or update) automatically.
+ *
+ * @param mixed $conn  OCI8 connection resource (global $conn from db.php)
+ * @param int   $studentId
+ * @return int         Number of match pairs processed
+ */
+function runMatchingForStudent($conn, int $studentId): int
 {
-    // Get student profile
-    $stmt = $conn->prepare(
-        'SELECT user_id, department, monthly_budget, preferences
-         FROM users WHERE user_id = ? AND role = ? AND account_status = ?'
-    );
-    $r = 'STUDENT'; $a = 'ACTIVE';
-    $stmt->bind_param('iss', $studentId, $r, $a);
-    $stmt->execute();
-    $s1 = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
+    global $conn;
 
+    // Fetch student 1
+    $s1 = oci_fetch_one_assoc(
+        'SELECT user_id, department, monthly_budget, preferences
+         FROM users WHERE user_id = :uid AND role_name = :role AND account_status = :status',
+        [':uid' => $studentId, ':role' => 'STUDENT', ':status' => 'ACTIVE']
+    );
     if (!$s1) return 0;
 
-    // Get all other active students
-    $stmt2 = $conn->prepare(
+    // Fetch all other active students
+    $others = oci_fetch_all_assoc(
         'SELECT user_id, department, monthly_budget, preferences
-         FROM users WHERE role = ? AND account_status = ? AND user_id != ?'
+         FROM users
+         WHERE role_name = :role AND account_status = :status AND user_id != :uid',
+        [':role' => 'STUDENT', ':status' => 'ACTIVE', ':uid' => $studentId]
     );
-    $stmt2->bind_param('ssi', $r, $a, $studentId);
-    $stmt2->execute();
-    $others = $stmt2->get_result()->fetch_all(MYSQLI_ASSOC);
-    $stmt2->close();
 
     $count = 0;
     foreach ($others as $s2) {
-        $result = calculateMatchScore($s1, $s2);
-        $sid2   = (int)$s2['user_id'];
-        $score  = $result['score'];
-        $dm     = (int)$result['dept_match'];
-        $bm     = (int)$result['budget_match'];
-        $po     = $result['pref_overlap'];
-        $reason = $result['reason_text'];
-
-        $ins = $conn->prepare(
-            'INSERT INTO roommate_matches
-             (student_id, matched_student_id, match_score, dept_match, budget_match, pref_overlap, match_reason)
-             VALUES (?,?,?,?,?,?,?)
-             ON DUPLICATE KEY UPDATE
-             match_score=VALUES(match_score), dept_match=VALUES(dept_match),
-             budget_match=VALUES(budget_match), pref_overlap=VALUES(pref_overlap),
-             match_reason=VALUES(match_reason), matched_at=NOW()'
+        $sid2 = (int)($s2['USER_ID'] ?? $s2['user_id']);
+        // Call Oracle stored procedure for this pair
+        $stmt = oci_parse($conn,
+            'BEGIN sp_calculate_match(:s1, :s2); END;'
         );
-        $ins->bind_param('iidiiis', $studentId, $sid2, $score, $dm, $bm, $po, $reason);
-        $ins->execute();
-        $ins->close();
+        oci_bind_by_name($stmt, ':s1', $studentId);
+        oci_bind_by_name($stmt, ':s2', $sid2);
+        oci_execute($stmt, OCI_COMMIT_ON_SUCCESS);
+        oci_free_statement($stmt);
         $count++;
     }
     return $count;

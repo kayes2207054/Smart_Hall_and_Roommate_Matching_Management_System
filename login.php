@@ -33,38 +33,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $error = 'Please enter a valid email address.';
         } else {
-            // Prepared statement — no SQL injection
-            $stmt = $conn->prepare(
-                'SELECT user_id, full_name, email, password_hash, role, account_status
-                 FROM users WHERE email = ? LIMIT 1'
+            // OCI8 query — named bind variables (:email)
+            $user = oci_fetch_one_assoc(
+                'SELECT user_id, full_name, email, password_hash, role_name, account_status
+                 FROM users WHERE email = :email AND ROWNUM = 1',
+                [':email' => $email]
             );
-            $stmt->bind_param('s', $email);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $user   = $result->fetch_assoc();
-            $stmt->close();
 
             if (!$user) {
                 $error = 'No account found with that email address.';
-            } elseif ($user['account_status'] !== 'ACTIVE') {
-                $error = 'Your account is ' . strtolower($user['account_status']) . '. Please contact an administrator.';
-            } elseif (!password_verify($password, $user['password_hash'])) {
+            } elseif ($user['ACCOUNT_STATUS'] !== 'ACTIVE') {
+                $error = 'Your account is ' . strtolower($user['ACCOUNT_STATUS']) . '. Please contact an administrator.';
+            } elseif (!password_verify($password, $user['PASSWORD_HASH'])) {
                 $error = 'Incorrect password. Please try again.';
             } else {
-                // Successful login — regenerate session ID (prevents session fixation)
+                // Successful login — regenerate session ID
                 session_regenerate_id(true);
 
-                $_SESSION['user_id'] = $user['user_id'];
-                $_SESSION['name']    = $user['full_name'];
-                $_SESSION['email']   = $user['email'];
-                $_SESSION['role']    = $user['role'];
+                $_SESSION['user_id'] = (int)$user['USER_ID'];
+                $_SESSION['name']    = $user['FULL_NAME'];
+                $_SESSION['email']   = $user['EMAIL'];
+                $_SESSION['role']    = $user['ROLE_NAME'];
 
                 // Role-based redirect
-                $destination = ($user['role'] === 'STUDENT')
+                $destination = ($user['ROLE_NAME'] === 'STUDENT')
                     ? BASE_URL . '/pages/student/dashboard.php'
                     : BASE_URL . '/pages/admin/dashboard.php';
 
-                // Honor redirect-after-login if set
                 if (!empty($_SESSION['redirect_after_login'])) {
                     $destination = $_SESSION['redirect_after_login'];
                     unset($_SESSION['redirect_after_login']);

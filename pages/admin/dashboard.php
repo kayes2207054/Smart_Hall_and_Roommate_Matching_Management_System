@@ -2,7 +2,7 @@
 /**
  * NestSync — Admin Dashboard
  * Roles: SYSTEM_ADMIN, HALL_ADMIN
- * Shows stats, recent bookings, top roommate matches, hall occupancy
+ * OCI8 — Oracle Database
  */
 
 require_once '../../config/config.php';
@@ -16,116 +16,96 @@ $pageTitle  = 'Dashboard';
 $activePage = 'dashboard';
 
 // ================================================================
-// 1. Fetch Dashboard Stats from vw_dashboard_stats
+// 1. Dashboard Stats — vw_dashboard_stats (Oracle single-row view)
 // ================================================================
+$raw = oci_fetch_one_assoc('SELECT * FROM vw_dashboard_stats');
 $stats = [
-    'total_students'    => 0,
-    'total_halls'       => 0,
-    'total_rooms'       => 0,
-    'total_seats'       => 0,
-    'available_seats'   => 0,
-    'booked_seats'      => 0,
-    'pending_bookings'  => 0,
-    'approved_bookings' => 0,
-    'rejected_bookings' => 0,
-    'total_hall_admins' => 0,
+    'total_students'    => (int)($raw['TOTAL_STUDENTS']    ?? 0),
+    'total_halls'       => (int)($raw['TOTAL_HALLS']       ?? 0),
+    'total_rooms'       => (int)($raw['TOTAL_ROOMS']       ?? 0),
+    'total_seats'       => (int)($raw['TOTAL_SEATS']       ?? 0),
+    'available_seats'   => (int)($raw['AVAILABLE_SEATS']   ?? 0),
+    'booked_seats'      => (int)($raw['BOOKED_SEATS']      ?? 0),
+    'pending_bookings'  => (int)($raw['PENDING_BOOKINGS']  ?? 0),
+    'approved_bookings' => (int)($raw['APPROVED_BOOKINGS'] ?? 0),
+    'rejected_bookings' => (int)($raw['REJECTED_BOOKINGS'] ?? 0),
+    'total_hall_admins' => (int)($raw['TOTAL_HALL_ADMINS'] ?? 0),
 ];
 
-$stmtStats = $conn->query('SELECT * FROM vw_dashboard_stats LIMIT 1');
-if ($stmtStats && $stmtStats->num_rows > 0) {
-    $stats = $stmtStats->fetch_assoc();
-}
-
 // ================================================================
-// 2. Recent Bookings — last 10 from vw_booking_summary
+// 2. Recent Bookings — last 10, filtered for HALL_ADMIN
 // ================================================================
-$recentBookings = [];
-
-// HALL_ADMIN: only bookings for their hall
 if (isHallAdmin()) {
     $myId = currentUserId();
-    $stmtRB = $conn->prepare(
-        'SELECT b.booking_id, b.booking_status, b.requested_at,
-                b.student_name, b.student_email,
-                b.hall_name, b.room_number, b.seat_label
-         FROM vw_booking_summary b
-         JOIN halls h ON b.hall_id = h.hall_id
-         WHERE h.managed_by = ?
-         ORDER BY b.requested_at DESC
-         LIMIT 10'
+    $recentRows = oci_fetch_all_assoc(
+        'SELECT * FROM (
+             SELECT b.booking_id, b.booking_status, b.requested_at,
+                    b.student_name, b.student_email,
+                    b.hall_name, b.room_number, b.seat_label
+             FROM   vw_booking_summary b
+             JOIN   halls h ON b.hall_id = h.hall_id
+             WHERE  h.managed_by = :mgr
+             ORDER BY b.requested_at DESC
+         ) WHERE ROWNUM <= 10',
+        [':mgr' => $myId]
     );
-    $stmtRB->bind_param('i', $myId);
 } else {
-    $stmtRB = $conn->prepare(
-        'SELECT booking_id, booking_status, requested_at,
-                student_name, student_email,
-                hall_name, room_number, seat_label
-         FROM vw_booking_summary
-         ORDER BY requested_at DESC
-         LIMIT 10'
+    $recentRows = oci_fetch_all_assoc(
+        'SELECT * FROM (
+             SELECT booking_id, booking_status, requested_at,
+                    student_name, student_email,
+                    hall_name, room_number, seat_label
+             FROM   vw_booking_summary
+             ORDER BY requested_at DESC
+         ) WHERE ROWNUM <= 10'
     );
 }
-$stmtRB->execute();
-$recentBookings = $stmtRB->get_result()->fetch_all(MYSQLI_ASSOC);
-$stmtRB->close();
 
 // ================================================================
-// 3. Top 5 Roommate Matches from vw_roommate_matches_detail
+// 3. Top 5 Roommate Matches
 // ================================================================
-$topMatches = [];
-$stmtMatches = $conn->prepare(
-    'SELECT match_id, match_score, dept_match, budget_match, pref_overlap,
-            match_reason, match_status, matched_at,
-            student_id, student_name, student_dept,
-            matched_student_id, matched_name, matched_dept
-     FROM vw_roommate_matches_detail
-     ORDER BY match_score DESC
-     LIMIT 5'
+$topMatches = oci_fetch_all_assoc(
+    'SELECT * FROM (
+         SELECT match_id, match_score, dept_match, budget_match,
+                pref_overlap, match_reason, match_status, matched_at,
+                student_id, student_name, student_dept,
+                matched_student_id, matched_name, matched_dept
+         FROM   vw_roommate_matches_detail
+         ORDER BY match_score DESC
+     ) WHERE ROWNUM <= 5'
 );
-$stmtMatches->execute();
-$topMatches = $stmtMatches->get_result()->fetch_all(MYSQLI_ASSOC);
-$stmtMatches->close();
 
 // ================================================================
-// 4. Hall Occupancy from vw_hall_occupancy
+// 4. Hall Occupancy
 // ================================================================
-$hallOccupancy = [];
-
 if (isHallAdmin()) {
     $myId = currentUserId();
-    $stmtHO = $conn->prepare(
+    $hallOccupancy = oci_fetch_all_assoc(
         'SELECT hall_id, hall_name, hall_location, gender_type,
                 total_seats, available_seats, booked_seats,
                 reserved_seats, maintenance_seats, occupancy_pct, manager_name
-         FROM vw_hall_occupancy
-         WHERE hall_id IN (SELECT hall_id FROM halls WHERE managed_by = ?)
-         ORDER BY occupancy_pct DESC'
+         FROM   vw_hall_occupancy
+         WHERE  hall_id IN (SELECT hall_id FROM halls WHERE managed_by = :mgr)
+         ORDER BY occupancy_pct DESC',
+        [':mgr' => $myId]
     );
-    $stmtHO->bind_param('i', $myId);
 } else {
-    $stmtHO = $conn->prepare(
+    $hallOccupancy = oci_fetch_all_assoc(
         'SELECT hall_id, hall_name, hall_location, gender_type,
                 total_seats, available_seats, booked_seats,
                 reserved_seats, maintenance_seats, occupancy_pct, manager_name
-         FROM vw_hall_occupancy
+         FROM   vw_hall_occupancy
          ORDER BY occupancy_pct DESC'
     );
 }
-$stmtHO->execute();
-$hallOccupancy = $stmtHO->get_result()->fetch_all(MYSQLI_ASSOC);
-$stmtHO->close();
 
-// ================================================================
-// Helper: score badge class
-// ================================================================
+// Helpers
 function scoreBadgeClass(float $score): string
 {
     if ($score >= 70) return 'score-high';
     if ($score >= 40) return 'score-medium';
     return 'score-low';
 }
-
-// Helper: occupancy bar colour
 function occupancyColor(float $pct): string
 {
     if ($pct >= 90) return '#ef4444';
@@ -140,9 +120,7 @@ include ROOT . '/includes/sidebar.php';
 <?php include ROOT . '/includes/navbar_top.php'; ?>
 <div class="content-area">
 
-    <!-- ============================================================
-         PAGE HEADING
-    ============================================================ -->
+    <!-- Page Heading -->
     <div class="d-flex align-items-center justify-content-between mb-4">
         <div>
             <h1 class="page-heading mb-1">Dashboard</h1>
@@ -162,79 +140,66 @@ include ROOT . '/includes/sidebar.php';
          ROW 1: STAT CARDS
     ============================================================ -->
     <div class="row g-3 mb-4">
-
-        <!-- Total Students -->
         <div class="col-xl-2 col-lg-4 col-sm-6">
             <div class="stat-card stat-card-blue fade-in-up">
                 <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
                 <div class="stat-body">
-                    <p class="stat-number" data-count="<?= (int)$stats['total_students'] ?>">0</p>
+                    <p class="stat-number" data-count="<?= $stats['total_students'] ?>">0</p>
                     <p class="stat-label">Total Students</p>
-                    <p class="stat-sublabel"><?= (int)$stats['total_hall_admins'] ?> Hall Admin<?= $stats['total_hall_admins'] != 1 ? 's' : '' ?></p>
+                    <p class="stat-sublabel"><?= $stats['total_hall_admins'] ?> Hall Admin<?= $stats['total_hall_admins'] != 1 ? 's' : '' ?></p>
                 </div>
             </div>
         </div>
-
-        <!-- Available Seats -->
         <div class="col-xl-2 col-lg-4 col-sm-6">
             <div class="stat-card stat-card-green fade-in-up" style="animation-delay:.07s">
                 <div class="stat-icon"><i class="fas fa-chair"></i></div>
                 <div class="stat-body">
-                    <p class="stat-number" data-count="<?= (int)$stats['available_seats'] ?>">0</p>
+                    <p class="stat-number" data-count="<?= $stats['available_seats'] ?>">0</p>
                     <p class="stat-label">Available Seats</p>
-                    <p class="stat-sublabel"><?= (int)$stats['total_seats'] ?> total seats</p>
+                    <p class="stat-sublabel"><?= $stats['total_seats'] ?> total seats</p>
                 </div>
             </div>
         </div>
-
-        <!-- Pending Bookings -->
         <div class="col-xl-2 col-lg-4 col-sm-6">
             <div class="stat-card stat-card-orange fade-in-up" style="animation-delay:.14s">
                 <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
                 <div class="stat-body">
-                    <p class="stat-number" data-count="<?= (int)$stats['pending_bookings'] ?>">0</p>
+                    <p class="stat-number" data-count="<?= $stats['pending_bookings'] ?>">0</p>
                     <p class="stat-label">Pending Bookings</p>
-                    <p class="stat-sublabel"><?= (int)$stats['approved_bookings'] ?> approved</p>
+                    <p class="stat-sublabel"><?= $stats['approved_bookings'] ?> approved</p>
                 </div>
             </div>
         </div>
-
-        <!-- Booked Seats -->
         <div class="col-xl-2 col-lg-4 col-sm-6">
             <div class="stat-card stat-card-red fade-in-up" style="animation-delay:.21s">
                 <div class="stat-icon"><i class="fas fa-bed"></i></div>
                 <div class="stat-body">
-                    <p class="stat-number" data-count="<?= (int)$stats['booked_seats'] ?>">0</p>
+                    <p class="stat-number" data-count="<?= $stats['booked_seats'] ?>">0</p>
                     <p class="stat-label">Booked Seats</p>
-                    <p class="stat-sublabel"><?= (int)$stats['rejected_bookings'] ?> rejected</p>
+                    <p class="stat-sublabel"><?= $stats['rejected_bookings'] ?> rejected</p>
                 </div>
             </div>
         </div>
-
-        <!-- Total Halls -->
         <div class="col-xl-2 col-lg-4 col-sm-6">
             <div class="stat-card stat-card-purple fade-in-up" style="animation-delay:.28s">
                 <div class="stat-icon"><i class="fas fa-building"></i></div>
                 <div class="stat-body">
-                    <p class="stat-number" data-count="<?= (int)$stats['total_halls'] ?>">0</p>
+                    <p class="stat-number" data-count="<?= $stats['total_halls'] ?>">0</p>
                     <p class="stat-label">Total Halls</p>
                     <p class="stat-sublabel">Active halls</p>
                 </div>
             </div>
         </div>
-
-        <!-- Total Rooms -->
         <div class="col-xl-2 col-lg-4 col-sm-6">
             <div class="stat-card stat-card-cyan fade-in-up" style="animation-delay:.35s">
                 <div class="stat-icon"><i class="fas fa-door-open"></i></div>
                 <div class="stat-body">
-                    <p class="stat-number" data-count="<?= (int)$stats['total_rooms'] ?>">0</p>
+                    <p class="stat-number" data-count="<?= $stats['total_rooms'] ?>">0</p>
                     <p class="stat-label">Total Rooms</p>
                     <p class="stat-sublabel">Available &amp; full</p>
                 </div>
             </div>
         </div>
-
     </div><!-- /row stat cards -->
 
     <!-- ============================================================
@@ -242,7 +207,7 @@ include ROOT . '/includes/sidebar.php';
     ============================================================ -->
     <div class="row g-3 mb-4">
 
-        <!-- ---- LEFT: Recent Bookings (col-lg-8) ---- -->
+        <!-- Recent Bookings (col-lg-8) -->
         <div class="col-lg-8">
             <div class="table-wrapper h-100">
                 <div class="table-header">
@@ -255,7 +220,7 @@ include ROOT . '/includes/sidebar.php';
                     </a>
                 </div>
 
-                <?php if (empty($recentBookings)): ?>
+                <?php if (empty($recentRows)): ?>
                 <div class="empty-state py-5">
                     <div class="empty-state-icon"><i class="fas fa-calendar-times"></i></div>
                     <h5>No Bookings Yet</h5>
@@ -266,41 +231,35 @@ include ROOT . '/includes/sidebar.php';
                     <table class="table table-hover" id="recentBookingsTable">
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Student</th>
-                                <th>Hall</th>
-                                <th>Room / Seat</th>
-                                <th>Status</th>
-                                <th>Date</th>
+                                <th>#</th><th>Student</th><th>Hall</th>
+                                <th>Room / Seat</th><th>Status</th><th>Date</th>
                             </tr>
                         </thead>
                         <tbody>
-                        <?php foreach ($recentBookings as $i => $b): ?>
+                        <?php foreach ($recentRows as $i => $b): ?>
                             <tr>
                                 <td class="text-muted fw-bold"><?= $i + 1 ?></td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="avatar-circle" style="width:32px;height:32px;font-size:13px;flex-shrink:0;">
-                                            <?= strtoupper(substr($b['student_name'], 0, 1)) ?>
+                                            <?= strtoupper(substr($b['STUDENT_NAME'], 0, 1)) ?>
                                         </div>
                                         <div>
-                                            <div class="fw-semibold" style="font-size:13px;"><?= htmlspecialchars($b['student_name'], ENT_QUOTES, 'UTF-8') ?></div>
-                                            <div class="text-muted" style="font-size:11px;"><?= htmlspecialchars($b['student_email'], ENT_QUOTES, 'UTF-8') ?></div>
+                                            <div class="fw-semibold" style="font-size:13px;"><?= htmlspecialchars($b['STUDENT_NAME'], ENT_QUOTES, 'UTF-8') ?></div>
+                                            <div class="text-muted" style="font-size:11px;"><?= htmlspecialchars($b['STUDENT_EMAIL'], ENT_QUOTES, 'UTF-8') ?></div>
                                         </div>
                                     </div>
                                 </td>
-                                <td>
-                                    <span class="fw-medium" style="font-size:13px;"><?= htmlspecialchars($b['hall_name'], ENT_QUOTES, 'UTF-8') ?></span>
-                                </td>
+                                <td><span class="fw-medium" style="font-size:13px;"><?= htmlspecialchars($b['HALL_NAME'], ENT_QUOTES, 'UTF-8') ?></span></td>
                                 <td>
                                     <span class="badge bg-light text-dark border" style="font-size:11.5px;">
-                                        Room <?= htmlspecialchars($b['room_number'], ENT_QUOTES, 'UTF-8') ?> — <?= htmlspecialchars($b['seat_label'], ENT_QUOTES, 'UTF-8') ?>
+                                        Room <?= htmlspecialchars($b['ROOM_NUMBER'], ENT_QUOTES, 'UTF-8') ?> — <?= htmlspecialchars($b['SEAT_LABEL'], ENT_QUOTES, 'UTF-8') ?>
                                     </span>
                                 </td>
-                                <td><?= statusBadge($b['booking_status']) ?></td>
+                                <td><?= statusBadge($b['BOOKING_STATUS']) ?></td>
                                 <td>
-                                    <span class="text-muted small" data-bs-toggle="tooltip" title="<?= htmlspecialchars(formatDate($b['requested_at']), ENT_QUOTES, 'UTF-8') ?>">
-                                        <?= timeAgo($b['requested_at']) ?>
+                                    <span class="text-muted small" data-bs-toggle="tooltip" title="<?= htmlspecialchars(formatDate($b['REQUESTED_AT']), ENT_QUOTES, 'UTF-8') ?>">
+                                        <?= timeAgo($b['REQUESTED_AT']) ?>
                                     </span>
                                 </td>
                             </tr>
@@ -316,14 +275,14 @@ include ROOT . '/includes/sidebar.php';
                     </a>
                 </div>
             </div>
-        </div><!-- /col-lg-8 -->
+        </div>
 
-        <!-- ---- RIGHT: Top Roommate Matches (col-lg-4) ---- -->
+        <!-- Top Roommate Matches (col-lg-4) -->
         <div class="col-lg-4">
             <div class="table-wrapper h-100">
                 <div class="table-header">
                     <div>
-                        <h5 class="table-title mb-0"><i class="fas fa-user-friends me-2 text-purple" style="color:#7c3aed;"></i>Top Matches</h5>
+                        <h5 class="table-title mb-0"><i class="fas fa-user-friends me-2" style="color:#7c3aed;"></i>Top Matches</h5>
                         <small class="text-muted">Highest compatibility pairs</small>
                     </div>
                     <a href="<?= BASE_URL ?>/pages/admin/roommate_matches.php" class="btn btn-sm btn-outline-primary">
@@ -340,34 +299,27 @@ include ROOT . '/includes/sidebar.php';
                 <?php else: ?>
                 <div style="padding: 8px 0;">
                 <?php foreach ($topMatches as $m):
-                    $scoreClass  = scoreBadgeClass((float)$m['match_score']);
-                    $initials1   = strtoupper(substr($m['student_name'], 0, 1));
-                    $initials2   = strtoupper(substr($m['matched_name'], 0, 1));
+                    $scoreClass = scoreBadgeClass((float)$m['MATCH_SCORE']);
+                    $initials1  = strtoupper(substr($m['STUDENT_NAME'], 0, 1));
+                    $initials2  = strtoupper(substr($m['MATCHED_NAME'], 0, 1));
                 ?>
                     <div class="d-flex align-items-center gap-3 px-4 py-3 border-bottom" style="border-color:#f8fafc !important;">
-                        <!-- Avatar 1 -->
-                        <div class="avatar-circle flex-shrink-0" style="width:38px;height:38px;font-size:14px;" title="<?= htmlspecialchars($m['student_name'], ENT_QUOTES, 'UTF-8') ?>">
+                        <div class="avatar-circle flex-shrink-0" style="width:38px;height:38px;font-size:14px;" title="<?= htmlspecialchars($m['STUDENT_NAME'], ENT_QUOTES, 'UTF-8') ?>">
                             <?= $initials1 ?>
                         </div>
-
-                        <!-- Names + dept -->
                         <div class="flex-grow-1 overflow-hidden">
-                            <div class="fw-semibold text-truncate" style="font-size:12.5px;"><?= htmlspecialchars($m['student_name'], ENT_QUOTES, 'UTF-8') ?></div>
+                            <div class="fw-semibold text-truncate" style="font-size:12.5px;"><?= htmlspecialchars($m['STUDENT_NAME'], ENT_QUOTES, 'UTF-8') ?></div>
                             <div class="d-flex align-items-center gap-1 my-1">
                                 <i class="fas fa-exchange-alt text-muted" style="font-size:10px;"></i>
                             </div>
-                            <div class="fw-semibold text-truncate" style="font-size:12.5px;"><?= htmlspecialchars($m['matched_name'], ENT_QUOTES, 'UTF-8') ?></div>
-                            <div class="text-muted" style="font-size:10.5px;"><?= htmlspecialchars($m['student_dept'] ?? '—', ENT_QUOTES, 'UTF-8') ?></div>
+                            <div class="fw-semibold text-truncate" style="font-size:12.5px;"><?= htmlspecialchars($m['MATCHED_NAME'], ENT_QUOTES, 'UTF-8') ?></div>
+                            <div class="text-muted" style="font-size:10.5px;"><?= htmlspecialchars($m['STUDENT_DEPT'] ?? '—', ENT_QUOTES, 'UTF-8') ?></div>
                         </div>
-
-                        <!-- Avatar 2 -->
-                        <div class="avatar-circle flex-shrink-0" style="width:38px;height:38px;font-size:14px;background:linear-gradient(135deg,#7c3aed,#4cc9f0);" title="<?= htmlspecialchars($m['matched_name'], ENT_QUOTES, 'UTF-8') ?>">
+                        <div class="avatar-circle flex-shrink-0" style="width:38px;height:38px;font-size:14px;background:linear-gradient(135deg,#7c3aed,#4cc9f0);" title="<?= htmlspecialchars($m['MATCHED_NAME'], ENT_QUOTES, 'UTF-8') ?>">
                             <?= $initials2 ?>
                         </div>
-
-                        <!-- Score badge -->
                         <div class="score-badge <?= $scoreClass ?> flex-shrink-0">
-                            <?= (int)$m['match_score'] ?>
+                            <?= (int)$m['MATCH_SCORE'] ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -380,8 +332,7 @@ include ROOT . '/includes/sidebar.php';
                     </a>
                 </div>
             </div>
-        </div><!-- /col-lg-4 -->
-
+        </div>
     </div><!-- /row 2 -->
 
     <!-- ============================================================
@@ -413,57 +364,43 @@ include ROOT . '/includes/sidebar.php';
                     <table class="table table-hover" id="hallOccupancyTable">
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Hall Name</th>
-                                <th>Location</th>
-                                <th>Gender</th>
+                                <th>#</th><th>Hall Name</th><th>Location</th><th>Gender</th>
                                 <th class="text-center">Total Seats</th>
                                 <th class="text-center">Booked</th>
                                 <th class="text-center">Available</th>
-                                <th>Occupancy</th>
-                                <th>Manager</th>
+                                <th>Occupancy</th><th>Manager</th>
                             </tr>
                         </thead>
                         <tbody>
                         <?php foreach ($hallOccupancy as $i => $h):
-                            $pct   = (float)($h['occupancy_pct'] ?? 0);
+                            $pct   = (float)($h['OCCUPANCY_PCT'] ?? 0);
                             $color = occupancyColor($pct);
                         ?>
                             <tr>
                                 <td class="text-muted fw-bold"><?= $i + 1 ?></td>
-                                <td>
-                                    <div class="fw-semibold" style="font-size:13.5px;"><?= htmlspecialchars($h['hall_name'], ENT_QUOTES, 'UTF-8') ?></div>
-                                </td>
-                                <td>
-                                    <span class="text-muted small"><i class="fas fa-map-marker-alt me-1"></i><?= htmlspecialchars($h['hall_location'], ENT_QUOTES, 'UTF-8') ?></span>
-                                </td>
-                                <td><?= statusBadge($h['gender_type']) ?></td>
-                                <td class="text-center fw-semibold"><?= (int)$h['total_seats'] ?></td>
-                                <td class="text-center">
-                                    <span class="badge bg-primary"><?= (int)$h['booked_seats'] ?></span>
-                                </td>
-                                <td class="text-center">
-                                    <span class="badge bg-success"><?= (int)$h['available_seats'] ?></span>
-                                </td>
+                                <td><div class="fw-semibold" style="font-size:13.5px;"><?= htmlspecialchars($h['HALL_NAME'], ENT_QUOTES, 'UTF-8') ?></div></td>
+                                <td><span class="text-muted small"><i class="fas fa-map-marker-alt me-1"></i><?= htmlspecialchars($h['HALL_LOCATION'], ENT_QUOTES, 'UTF-8') ?></span></td>
+                                <td><?= statusBadge($h['GENDER_TYPE']) ?></td>
+                                <td class="text-center fw-semibold"><?= (int)$h['TOTAL_SEATS'] ?></td>
+                                <td class="text-center"><span class="badge bg-primary"><?= (int)$h['BOOKED_SEATS'] ?></span></td>
+                                <td class="text-center"><span class="badge bg-success"><?= (int)$h['AVAILABLE_SEATS'] ?></span></td>
                                 <td style="min-width:160px;">
                                     <div class="score-bar-wrapper">
                                         <div class="score-bar">
-                                            <div class="score-bar-fill"
-                                                 data-score="<?= $pct ?>"
-                                                 style="background:<?= $color ?>;"></div>
+                                            <div class="score-bar-fill" data-score="<?= $pct ?>" style="background:<?= $color ?>;"></div>
                                         </div>
-                                        <span class="score-value" style="color:<?= $color ?>; font-size:12px;">
+                                        <span class="score-value" style="color:<?= $color ?>;font-size:12px;">
                                             <?= number_format($pct, 1) ?>%
                                         </span>
                                     </div>
                                 </td>
                                 <td>
-                                    <?php if ($h['manager_name']): ?>
+                                    <?php if (!empty($h['MANAGER_NAME'])): ?>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="avatar-circle" style="width:26px;height:26px;font-size:11px;flex-shrink:0;">
-                                            <?= strtoupper(substr($h['manager_name'], 0, 1)) ?>
+                                            <?= strtoupper(substr($h['MANAGER_NAME'], 0, 1)) ?>
                                         </div>
-                                        <span class="small"><?= htmlspecialchars($h['manager_name'], ENT_QUOTES, 'UTF-8') ?></span>
+                                        <span class="small"><?= htmlspecialchars($h['MANAGER_NAME'], ENT_QUOTES, 'UTF-8') ?></span>
                                     </div>
                                     <?php else: ?>
                                         <span class="text-muted small">—</span>
@@ -475,13 +412,13 @@ include ROOT . '/includes/sidebar.php';
                     </table>
                 </div>
 
-                <!-- Occupancy Summary Cards -->
+                <!-- Occupancy Summary Footer -->
                 <div class="table-footer">
                     <div class="row g-2 text-center">
                         <?php
-                        $totalBooked    = array_sum(array_column($hallOccupancy, 'booked_seats'));
-                        $totalAvailable = array_sum(array_column($hallOccupancy, 'available_seats'));
-                        $totalSeatsAll  = array_sum(array_column($hallOccupancy, 'total_seats'));
+                        $totalBooked    = array_sum(array_column($hallOccupancy, 'BOOKED_SEATS'));
+                        $totalAvailable = array_sum(array_column($hallOccupancy, 'AVAILABLE_SEATS'));
+                        $totalSeatsAll  = array_sum(array_column($hallOccupancy, 'TOTAL_SEATS'));
                         $overallPct     = $totalSeatsAll > 0 ? round($totalBooked / $totalSeatsAll * 100, 1) : 0;
                         ?>
                         <div class="col-3">
@@ -511,7 +448,6 @@ include ROOT . '/includes/sidebar.php';
                     </div>
                 </div>
                 <?php endif; ?>
-
             </div><!-- /table-wrapper -->
         </div>
     </div><!-- /row 3 -->

@@ -47,60 +47,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($budget < 1000 || $budget > 20000)      $errors[] = 'Monthly budget must be between 1,000 and 20,000 BDT.';
         if (!in_array($gender, ['MALE','FEMALE','OTHER'], true)) $errors[] = 'Please select your gender.';
 
-        // Check duplicate email
+        // Check duplicate email (OCI8)
         if (empty($errors)) {
-            $chk = $conn->prepare('SELECT user_id FROM users WHERE email = ?');
-            $chk->bind_param('s', $email);
-            $chk->execute();
-            $chk->store_result();
-            if ($chk->num_rows > 0) $errors[] = 'An account with this email already exists.';
-            $chk->close();
+            $emailCount = oci_fetch_scalar(
+                'SELECT COUNT(*) FROM users WHERE email = :email',
+                [':email' => $email]
+            );
+            if ((int)$emailCount > 0) $errors[] = 'An account with this email already exists.';
         }
 
-        // Check duplicate student ID
+        // Check duplicate student ID (OCI8)
         if (empty($errors) && !empty($studentId)) {
-            $chk2 = $conn->prepare('SELECT user_id FROM users WHERE student_id_no = ?');
-            $chk2->bind_param('s', $studentId);
-            $chk2->execute();
-            $chk2->store_result();
-            if ($chk2->num_rows > 0) $errors[] = 'A student with this Student ID already exists.';
-            $chk2->close();
+            $sidCount = oci_fetch_scalar(
+                'SELECT COUNT(*) FROM users WHERE student_id_no = :sid',
+                [':sid' => $studentId]
+            );
+            if ((int)$sidCount > 0) $errors[] = 'A student with this Student ID already exists.';
         }
 
-        // All good — insert
+        // All good — insert (OCI8)
         if (empty($errors)) {
-            $hash = password_hash($password, PASSWORD_BCRYPT);
-            $role = 'STUDENT';
+            $hash   = password_hash($password, PASSWORD_BCRYPT);
+            $role   = 'STUDENT';
             $status = 'ACTIVE';
 
-            $stmt = $conn->prepare(
-                'INSERT INTO users (full_name,email,password_hash,role,department,phone,student_id_no,monthly_budget,preferences,gender,account_status)
-                 VALUES (?,?,?,?,?,?,?,?,?,?,?)'
-            );
-            $stmt->bind_param('sssssssdsss',
-                $fullName, $email, $hash, $role, $department, $phone, $studentId,
-                $budget, $prefs, $gender, $status
+            $inserted = oci_execute_dml(
+                'INSERT INTO users
+                 (full_name, email, password_hash, role_name, department, phone,
+                  student_id_no, monthly_budget, preferences, gender, account_status)
+                 VALUES
+                 (:name, :email, :hash, :role, :dept, :phone,
+                  :sid, :budget, :prefs, :gender, :status)',
+                [
+                    ':name'   => $fullName,
+                    ':email'  => $email,
+                    ':hash'   => $hash,
+                    ':role'   => $role,
+                    ':dept'   => $department,
+                    ':phone'  => $phone,
+                    ':sid'    => $studentId ?: null,
+                    ':budget' => $budget,
+                    ':prefs'  => $prefs ?: null,
+                    ':gender' => $gender,
+                    ':status' => $status,
+                ]
             );
 
-            if ($stmt->execute()) {
-                $newUserId = $conn->insert_id;
-                $stmt->close();
+            if ($inserted) {
+                $newUserId = oci_last_insert_id('seq_users');
 
-                // Send welcome notification
-                $notifStmt = $conn->prepare(
-                    'INSERT INTO notifications (user_id,title,message,notif_type) VALUES (?,?,?,?)'
+                // Welcome notification
+                oci_execute_dml(
+                    'INSERT INTO notifications (user_id, title, message, notif_type)
+                     VALUES (:uid, :title, :msg, :type)',
+                    [
+                        ':uid'   => $newUserId,
+                        ':title' => 'Welcome to NestSync! 🎉',
+                        ':msg'   => 'Your account has been created. Browse halls and book your seat now!',
+                        ':type'  => 'SYSTEM',
+                    ]
                 );
-                $title = 'Welcome to NestSync! 🎉';
-                $msg   = 'Your account has been created. Browse halls and book your seat now!';
-                $type  = 'SYSTEM';
-                $notifStmt->bind_param('isss', $newUserId, $title, $msg, $type);
-                $notifStmt->execute();
-                $notifStmt->close();
 
                 $success = true;
             } else {
                 $errors[] = 'Registration failed. Please try again.';
-                $stmt->close();
             }
         }
     }
