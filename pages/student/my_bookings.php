@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'cance
             setFlash('danger', 'That booking cannot be cancelled (only PENDING bookings can be cancelled).');
         } else {
             global $conn;
-            $stmt = oci_parse($conn, 'BEGIN sp_cancel_booking(:bid,:uid); END;');
+            $stmt = oci_parse($conn, 'BEGIN PKG_NESTSYNC.sp_cancel_booking(:bid,:uid); END;');
             oci_bind_by_name($stmt, ':bid', $bookingId);
             oci_bind_by_name($stmt, ':uid', $uid);
             $ok = oci_execute($stmt, OCI_COMMIT_ON_SUCCESS);

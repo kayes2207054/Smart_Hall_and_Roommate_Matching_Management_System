@@ -1,3 +1,15 @@
+<?php
+session_start();
+if (isset($_SESSION['user_id'])) {
+    if (in_array($_SESSION['role'] ?? '', ['SYSTEM_ADMIN', 'HALL_ADMIN'])) {
+        header('Location: pages/admin/dashboard.php');
+        exit;
+    } elseif (($_SESSION['role'] ?? '') === 'STUDENT') {
+        header('Location: pages/student/dashboard.php');
+        exit;
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -267,7 +279,7 @@
         <hr>
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <p class="footer-copy mb-0">© 2026 NestSync. Built as a University Database Management System project.</p>
-            <p class="footer-copy mb-0">PHP 8 · MySQL · Bootstrap 5</p>
+            <p class="footer-copy mb-0">PHP 8 · Oracle 19c · Bootstrap 5</p>
         </div>
     </div>
 </footer>

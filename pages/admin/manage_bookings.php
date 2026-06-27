@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $remarks   = sanitize($_POST['admin_remarks'] ?? '');
 
             global $conn;
-            $stmt = oci_parse($conn, 'BEGIN sp_approve_booking(:bid,:uid,:rem); END;');
+            $stmt = oci_parse($conn, 'BEGIN PKG_NESTSYNC.sp_approve_booking(:bid,:uid,:rem); END;');
             oci_bind_by_name($stmt, ':bid', $bookingId);
             oci_bind_by_name($stmt, ':uid', $uid);
             oci_bind_by_name($stmt, ':rem', $remarks);
@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $remarks   = sanitize($_POST['admin_remarks'] ?? '');
 
             global $conn;
-            $stmt = oci_parse($conn, 'BEGIN sp_reject_booking(:bid,:uid,:rem); END;');
+            $stmt = oci_parse($conn, 'BEGIN PKG_NESTSYNC.sp_reject_booking(:bid,:uid,:rem); END;');
             oci_bind_by_name($stmt, ':bid', $bookingId);
             oci_bind_by_name($stmt, ':uid', $uid);
             oci_bind_by_name($stmt, ':rem', $remarks);

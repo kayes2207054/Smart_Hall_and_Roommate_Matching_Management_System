@@ -16,7 +16,7 @@ $uid        = currentUserId();
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'run_engine') {
     if (verifyCsrfToken($_POST['csrf_token'] ?? '')) {
         global $conn;
-        $stmt = oci_parse($conn, 'BEGIN sp_run_all_matches; END;');
+        $stmt = oci_parse($conn, 'BEGIN PKG_NESTSYNC.sp_run_all_matches; END;');
         if (@oci_execute($stmt, OCI_COMMIT_ON_SUCCESS)) {
             setFlash('success', 'Matching engine executed successfully.');
         } else {

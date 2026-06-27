@@ -69,6 +69,9 @@ $ap = $activePage ?? '';
             <?= sidebarLink(BASE_URL.'/pages/admin/reports.php',           'fas fa-chart-bar',      'Reports',         'reports',          $ap) ?>
             <?= sidebarLink(BASE_URL.'/pages/admin/roommate_matches.php',  'fas fa-user-friends',   'Roommate Matches','roommate_matches',  $ap) ?>
 
+            <li class="nav-section-title">Account</li>
+            <?= sidebarLink(BASE_URL.'/pages/admin/profile.php',           'fas fa-user-shield',    'My Profile',      'profile',          $ap) ?>
+
         <?php elseif ($role === 'STUDENT'): ?>
             <!-- STUDENT NAVIGATION -->
             <li class="nav-section-title">My Portal</li>
