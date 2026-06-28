@@ -28,9 +28,9 @@ if (!defined('ROOT')) {
 // For Oracle XE: service_name is typically 'XEPDB1' (pluggable DB) or 'XE'
 $oraHost     = 'localhost';
 $oraPort     = 1521;
-$oraService  = 'XEPDB1';       // Change to 'XE' if using older Oracle XE
+$oraService  = 'XE';       // Oracle 11g uses 'XE'
 $oraUser     = 'nestsync';     // Schema/user that owns all NestSync tables
-$oraPass     = 'nestsync123';  // Set the same password when creating the schema
+$oraPass     = 'nestsync';     // Set the same password when creating the schema
 $oraCharset  = 'AL32UTF8';
 
 $oraConnStr = "//{$oraHost}:{$oraPort}/{$oraService}";

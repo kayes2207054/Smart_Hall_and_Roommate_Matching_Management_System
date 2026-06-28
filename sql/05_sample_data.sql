@@ -15,7 +15,7 @@
 
 -- Disable triggers that would interfere with controlled seed data
 ALTER TRIGGER trg_prevent_double_booking   DISABLE;
-ALTER TRIGGER trg_prevent_seat_double_reserve DISABLE;
+ALTER TRIGGER trg_prevent_seat_dbl_res DISABLE;
 
 -- ----------------------------------------------------------------
 -- USERS
@@ -106,19 +106,19 @@ COMMIT;
 -- HALLS
 -- ----------------------------------------------------------------
 INSERT INTO halls (hall_name, hall_location, total_capacity, gender_type, description, managed_by, hall_status)
-VALUES ('North Hall', 'Campus Block A, Main Road', 200, 'MALE',
+SELECT 'North Hall', 'Campus Block A, Main Road', 200, 'MALE',
         'Six-storey male hall with modern facilities, cafeteria, and study rooms.',
-        (SELECT user_id FROM users WHERE email = 'halladmin1@nestsync.edu'), 'ACTIVE');
+        user_id, 'ACTIVE' FROM users WHERE email = 'halladmin1@nestsync.edu';
 
 INSERT INTO halls (hall_name, hall_location, total_capacity, gender_type, description, managed_by, hall_status)
-VALUES ('South Hall', 'Campus Block B, Park Road', 150, 'FEMALE',
+SELECT 'South Hall', 'Campus Block B, Park Road', 150, 'FEMALE',
         'Five-storey female hall with in-house laundry and reading lounge.',
-        (SELECT user_id FROM users WHERE email = 'halladmin2@nestsync.edu'), 'ACTIVE');
+        user_id, 'ACTIVE' FROM users WHERE email = 'halladmin2@nestsync.edu';
 
 INSERT INTO halls (hall_name, hall_location, total_capacity, gender_type, description, managed_by, hall_status)
-VALUES ('East Hall', 'Campus Block C, East Wing', 180, 'MIXED',
+SELECT 'East Hall', 'Campus Block C, East Wing', 180, 'MIXED',
         'Mixed hall with segregated floors, common room, and gym access.',
-        (SELECT user_id FROM users WHERE email = 'halladmin1@nestsync.edu'), 'ACTIVE');
+        user_id, 'ACTIVE' FROM users WHERE email = 'halladmin1@nestsync.edu';
 
 COMMIT;
 
@@ -128,33 +128,33 @@ COMMIT;
 -- ----------------------------------------------------------------
 -- North Hall (Male)
 INSERT INTO rooms (hall_id, room_number, room_type, capacity, floor_number, monthly_rent, facilities, room_status)
-VALUES ((SELECT hall_id FROM halls WHERE hall_name='North Hall'), 'A-101', 'DOUBLE', 2, 1, 3500, 'Wi-Fi, Air Conditioning, Attached Bath', 'AVAILABLE');
+SELECT hall_id, 'A-101', 'DOUBLE', 2, 1, 3500, 'Wi-Fi, Air Conditioning, Attached Bath', 'AVAILABLE' FROM halls WHERE hall_name='North Hall';
 INSERT INTO rooms (hall_id, room_number, room_type, capacity, floor_number, monthly_rent, facilities, room_status)
-VALUES ((SELECT hall_id FROM halls WHERE hall_name='North Hall'), 'A-102', 'TRIPLE', 3, 1, 3000, 'Wi-Fi, Ceiling Fan, Common Bath', 'AVAILABLE');
+SELECT hall_id, 'A-102', 'TRIPLE', 3, 1, 3000, 'Wi-Fi, Ceiling Fan, Common Bath', 'AVAILABLE' FROM halls WHERE hall_name='North Hall';
 INSERT INTO rooms (hall_id, room_number, room_type, capacity, floor_number, monthly_rent, facilities, room_status)
-VALUES ((SELECT hall_id FROM halls WHERE hall_name='North Hall'), 'A-201', 'DOUBLE', 2, 2, 3800, 'Wi-Fi, Air Conditioning, Balcony', 'AVAILABLE');
+SELECT hall_id, 'A-201', 'DOUBLE', 2, 2, 3800, 'Wi-Fi, Air Conditioning, Balcony', 'AVAILABLE' FROM halls WHERE hall_name='North Hall';
 INSERT INTO rooms (hall_id, room_number, room_type, capacity, floor_number, monthly_rent, facilities, room_status)
-VALUES ((SELECT hall_id FROM halls WHERE hall_name='North Hall'), 'A-202', 'QUAD',   4, 2, 2500, 'Wi-Fi, Ceiling Fan, Common Bath', 'AVAILABLE');
+SELECT hall_id, 'A-202', 'QUAD',   4, 2, 2500, 'Wi-Fi, Ceiling Fan, Common Bath', 'AVAILABLE' FROM halls WHERE hall_name='North Hall';
 
 -- South Hall (Female)
 INSERT INTO rooms (hall_id, room_number, room_type, capacity, floor_number, monthly_rent, facilities, room_status)
-VALUES ((SELECT hall_id FROM halls WHERE hall_name='South Hall'), 'B-101', 'DOUBLE', 2, 1, 3200, 'Wi-Fi, Air Conditioning, Attached Bath', 'AVAILABLE');
+SELECT hall_id, 'B-101', 'DOUBLE', 2, 1, 3200, 'Wi-Fi, Air Conditioning, Attached Bath', 'AVAILABLE' FROM halls WHERE hall_name='South Hall';
 INSERT INTO rooms (hall_id, room_number, room_type, capacity, floor_number, monthly_rent, facilities, room_status)
-VALUES ((SELECT hall_id FROM halls WHERE hall_name='South Hall'), 'B-102', 'TRIPLE', 3, 1, 2800, 'Wi-Fi, Ceiling Fan, Common Bath', 'AVAILABLE');
+SELECT hall_id, 'B-102', 'TRIPLE', 3, 1, 2800, 'Wi-Fi, Ceiling Fan, Common Bath', 'AVAILABLE' FROM halls WHERE hall_name='South Hall';
 INSERT INTO rooms (hall_id, room_number, room_type, capacity, floor_number, monthly_rent, facilities, room_status)
-VALUES ((SELECT hall_id FROM halls WHERE hall_name='South Hall'), 'B-201', 'SINGLE', 1, 2, 4500, 'Wi-Fi, Air Conditioning, Attached Bath, Balcony', 'AVAILABLE');
+SELECT hall_id, 'B-201', 'SINGLE', 1, 2, 4500, 'Wi-Fi, Air Conditioning, Attached Bath, Balcony', 'AVAILABLE' FROM halls WHERE hall_name='South Hall';
 INSERT INTO rooms (hall_id, room_number, room_type, capacity, floor_number, monthly_rent, facilities, room_status)
-VALUES ((SELECT hall_id FROM halls WHERE hall_name='South Hall'), 'B-202', 'DOUBLE', 2, 2, 3200, 'Wi-Fi, Ceiling Fan', 'AVAILABLE');
+SELECT hall_id, 'B-202', 'DOUBLE', 2, 2, 3200, 'Wi-Fi, Ceiling Fan', 'AVAILABLE' FROM halls WHERE hall_name='South Hall';
 
 -- East Hall (Mixed)
 INSERT INTO rooms (hall_id, room_number, room_type, capacity, floor_number, monthly_rent, facilities, room_status)
-VALUES ((SELECT hall_id FROM halls WHERE hall_name='East Hall'), 'C-101', 'DOUBLE', 2, 1, 3300, 'Wi-Fi, Air Conditioning, Attached Bath', 'AVAILABLE');
+SELECT hall_id, 'C-101', 'DOUBLE', 2, 1, 3300, 'Wi-Fi, Air Conditioning, Attached Bath', 'AVAILABLE' FROM halls WHERE hall_name='East Hall';
 INSERT INTO rooms (hall_id, room_number, room_type, capacity, floor_number, monthly_rent, facilities, room_status)
-VALUES ((SELECT hall_id FROM halls WHERE hall_name='East Hall'), 'C-102', 'TRIPLE', 3, 1, 2900, 'Wi-Fi, Ceiling Fan, Common Bath', 'AVAILABLE');
+SELECT hall_id, 'C-102', 'TRIPLE', 3, 1, 2900, 'Wi-Fi, Ceiling Fan, Common Bath', 'AVAILABLE' FROM halls WHERE hall_name='East Hall';
 INSERT INTO rooms (hall_id, room_number, room_type, capacity, floor_number, monthly_rent, facilities, room_status)
-VALUES ((SELECT hall_id FROM halls WHERE hall_name='East Hall'), 'C-201', 'DOUBLE', 2, 2, 3600, 'Wi-Fi, Air Conditioning, Balcony', 'AVAILABLE');
+SELECT hall_id, 'C-201', 'DOUBLE', 2, 2, 3600, 'Wi-Fi, Air Conditioning, Balcony', 'AVAILABLE' FROM halls WHERE hall_name='East Hall';
 INSERT INTO rooms (hall_id, room_number, room_type, capacity, floor_number, monthly_rent, facilities, room_status)
-VALUES ((SELECT hall_id FROM halls WHERE hall_name='East Hall'), 'C-202', 'QUAD',   4, 2, 2600, 'Wi-Fi, Ceiling Fan, Common Bath', 'AVAILABLE');
+SELECT hall_id, 'C-202', 'QUAD',   4, 2, 2600, 'Wi-Fi, Ceiling Fan, Common Bath', 'AVAILABLE' FROM halls WHERE hall_name='East Hall';
 
 COMMIT;
 
@@ -315,76 +315,52 @@ END;
 -- ----------------------------------------------------------------
 -- ROOMMATE MATCHES (pre-computed pairs)
 -- ----------------------------------------------------------------
+DECLARE
+    v_rahim_id   users.user_id%TYPE;
+    v_sabbir_id  users.user_id%TYPE;
+    v_karim_id   users.user_id%TYPE;
+    v_nusrat_id  users.user_id%TYPE;
+    v_sumaiya_id users.user_id%TYPE;
+    v_rifat_id   users.user_id%TYPE;
+    v_tanvir_id  users.user_id%TYPE;
+    v_ayesha_id  users.user_id%TYPE;
+    v_imran_id   users.user_id%TYPE;
+    v_fatema_id  users.user_id%TYPE;
+    v_admin_id   users.user_id%TYPE;
 BEGIN
-    -- Rahim ↔ Sabbir: same CSE dept + budget close + quiet+study+clean (88 pts)
-    sp_calculate_match(
-        (SELECT user_id FROM users WHERE email='rahim@nestsync.edu'),
-        (SELECT user_id FROM users WHERE email='sabbir@nestsync.edu')
-    );
-    -- Rahim ↔ Karim: same CSE + budget close + quiet+study (80 pts)
-    sp_calculate_match(
-        (SELECT user_id FROM users WHERE email='rahim@nestsync.edu'),
-        (SELECT user_id FROM users WHERE email='karim@nestsync.edu')
-    );
-    -- Nusrat ↔ Sumaiya: budget close + quiet+clean (50 pts)
-    sp_calculate_match(
-        (SELECT user_id FROM users WHERE email='nusrat@nestsync.edu'),
-        (SELECT user_id FROM users WHERE email='sumaiya@nestsync.edu')
-    );
-    -- Rifat ↔ Tanvir: same EEE + budget close + study (60 pts)
-    sp_calculate_match(
-        (SELECT user_id FROM users WHERE email='rifat@nestsync.edu'),
-        (SELECT user_id FROM users WHERE email='tanvir@nestsync.edu')
-    );
-    -- Ayesha ↔ Sabbir: same CSE + budget close + quiet+study (78 pts)
-    sp_calculate_match(
-        (SELECT user_id FROM users WHERE email='ayesha@nestsync.edu'),
-        (SELECT user_id FROM users WHERE email='sabbir@nestsync.edu')
-    );
-    COMMIT;
-END;
-/
+    SELECT user_id INTO v_rahim_id  FROM users WHERE email = 'rahim@nestsync.edu';
+    SELECT user_id INTO v_sabbir_id FROM users WHERE email = 'sabbir@nestsync.edu';
+    SELECT user_id INTO v_karim_id  FROM users WHERE email = 'karim@nestsync.edu';
+    SELECT user_id INTO v_nusrat_id FROM users WHERE email = 'nusrat@nestsync.edu';
+    SELECT user_id INTO v_sumaiya_id FROM users WHERE email = 'sumaiya@nestsync.edu';
+    SELECT user_id INTO v_rifat_id  FROM users WHERE email = 'rifat@nestsync.edu';
+    SELECT user_id INTO v_tanvir_id FROM users WHERE email = 'tanvir@nestsync.edu';
+    SELECT user_id INTO v_ayesha_id FROM users WHERE email = 'ayesha@nestsync.edu';
+    SELECT user_id INTO v_imran_id  FROM users WHERE email = 'imran@nestsync.edu';
+    SELECT user_id INTO v_fatema_id FROM users WHERE email = 'fatema@nestsync.edu';
+    SELECT user_id INTO v_admin_id  FROM users WHERE email = 'admin@nestsync.edu';
 
+    -- Rahim <-> Sabbir
+    sp_calculate_match(v_rahim_id, v_sabbir_id);
+    -- Rahim <-> Karim
+    sp_calculate_match(v_rahim_id, v_karim_id);
+    -- Nusrat <-> Sumaiya
+    sp_calculate_match(v_nusrat_id, v_sumaiya_id);
+    -- Rifat <-> Tanvir
+    sp_calculate_match(v_rifat_id, v_tanvir_id);
+    -- Ayesha <-> Sabbir
+    sp_calculate_match(v_ayesha_id, v_sabbir_id);
 
--- ----------------------------------------------------------------
--- NOTIFICATIONS
--- ----------------------------------------------------------------
-BEGIN
-    sp_send_notification(
-        (SELECT user_id FROM users WHERE email='rahim@nestsync.edu'),
-        'Booking Approved', 'Your booking for North Hall A-101 S1 has been approved. Welcome!', 'BOOKING');
-
-    sp_send_notification(
-        (SELECT user_id FROM users WHERE email='sabbir@nestsync.edu'),
-        'Booking Approved', 'Your booking for North Hall A-102 S1 has been approved. Welcome!', 'BOOKING');
-
-    sp_send_notification(
-        (SELECT user_id FROM users WHERE email='nusrat@nestsync.edu'),
-        'Booking Approved', 'Your booking for South Hall B-101 S1 has been approved. Welcome!', 'BOOKING');
-
-    sp_send_notification(
-        (SELECT user_id FROM users WHERE email='imran@nestsync.edu'),
-        'Booking Rejected', 'Your booking for East Hall C-202 was rejected. Please reapply next semester.', 'BOOKING');
-
-    sp_send_notification(
-        (SELECT user_id FROM users WHERE email='rahim@nestsync.edu'),
-        'Roommate Match Found', 'You have a new high-compatibility roommate match! Check your matches.', 'MATCH');
-
-    sp_send_notification(
-        (SELECT user_id FROM users WHERE email='sabbir@nestsync.edu'),
-        'Roommate Match Found', 'A compatible roommate has been found for you!', 'MATCH');
-
-    sp_send_notification(
-        (SELECT user_id FROM users WHERE email='karim@nestsync.edu'),
-        'Booking Under Review', 'Your booking request for North Hall A-201 is being reviewed.', 'BOOKING');
-
-    sp_send_notification(
-        (SELECT user_id FROM users WHERE email='fatema@nestsync.edu'),
-        'Application Received', 'Your hall seat application has been received and will be reviewed shortly.', 'BOOKING');
-
-    sp_send_notification(
-        (SELECT user_id FROM users WHERE email='admin@nestsync.edu'),
-        'System Ready', 'NestSync has been successfully configured with sample data.', 'SYSTEM');
+    -- NOTIFICATIONS
+    sp_send_notification(v_rahim_id, 'Booking Approved', 'Your booking for North Hall A-101 S1 has been approved. Welcome!', 'BOOKING');
+    sp_send_notification(v_sabbir_id, 'Booking Approved', 'Your booking for North Hall A-102 S1 has been approved. Welcome!', 'BOOKING');
+    sp_send_notification(v_nusrat_id, 'Booking Approved', 'Your booking for South Hall B-101 S1 has been approved. Welcome!', 'BOOKING');
+    sp_send_notification(v_imran_id, 'Booking Rejected', 'Your booking for East Hall C-202 was rejected. Please reapply next semester.', 'BOOKING');
+    sp_send_notification(v_rahim_id, 'Roommate Match Found', 'You have a new high-compatibility roommate match! Check your matches.', 'MATCH');
+    sp_send_notification(v_sabbir_id, 'Roommate Match Found', 'A compatible roommate has been found for you!', 'MATCH');
+    sp_send_notification(v_karim_id, 'Booking Under Review', 'Your booking request for North Hall A-201 is being reviewed.', 'BOOKING');
+    sp_send_notification(v_fatema_id, 'Application Received', 'Your hall seat application has been received and will be reviewed shortly.', 'BOOKING');
+    sp_send_notification(v_admin_id, 'System Ready', 'NestSync has been successfully configured with sample data.', 'SYSTEM');
 
     COMMIT;
 END;
@@ -393,7 +369,7 @@ END;
 
 -- Re-enable triggers
 ALTER TRIGGER trg_prevent_double_booking      ENABLE;
-ALTER TRIGGER trg_prevent_seat_double_reserve ENABLE;
+ALTER TRIGGER trg_prevent_seat_dbl_res ENABLE;
 
 COMMIT;
 

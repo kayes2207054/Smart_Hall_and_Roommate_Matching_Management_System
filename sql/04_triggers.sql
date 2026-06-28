@@ -76,6 +76,7 @@ CREATE OR REPLACE TRIGGER trg_seat_status_to_room
 AFTER UPDATE OF seat_status ON seats
 FOR EACH ROW
 DECLARE
+    PRAGMA AUTONOMOUS_TRANSACTION;
     v_avail NUMBER;
     v_total NUMBER;
 BEGIN
@@ -85,7 +86,14 @@ BEGIN
     FROM   seats
     WHERE  room_id = :NEW.room_id;
 
-    IF v_avail = 0 THEN
+    -- Adjust for the current row because autonomous transaction doesn't see it yet
+    IF :OLD.seat_status = 'AVAILABLE' AND :NEW.seat_status != 'AVAILABLE' THEN
+        v_avail := v_avail - 1;
+    ELSIF :OLD.seat_status != 'AVAILABLE' AND :NEW.seat_status = 'AVAILABLE' THEN
+        v_avail := v_avail + 1;
+    END IF;
+
+    IF v_avail <= 0 THEN
         UPDATE rooms
         SET    room_status = 'FULL'
         WHERE  room_id     = :NEW.room_id
@@ -96,6 +104,7 @@ BEGIN
         WHERE  room_id     = :NEW.room_id
           AND  room_status NOT IN ('MAINTENANCE','INACTIVE');
     END IF;
+    COMMIT;
 END;
 /
 
@@ -129,11 +138,11 @@ END;
 
 
 -- ================================================================
--- TRIGGER: trg_prevent_seat_double_reserve
+-- TRIGGER: trg_prevent_seat_dbl_res
 -- Fires BEFORE INSERT on bookings.
 -- Prevents booking a seat that is not AVAILABLE.
 -- ================================================================
-CREATE OR REPLACE TRIGGER trg_prevent_seat_double_reserve
+CREATE OR REPLACE TRIGGER trg_prevent_seat_dbl_res
 BEFORE INSERT ON bookings
 FOR EACH ROW
 DECLARE
