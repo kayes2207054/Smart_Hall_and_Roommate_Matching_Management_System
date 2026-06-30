@@ -216,8 +216,8 @@ function getUnreadNotifCount($conn = null): int
     $uid = (int)$_SESSION['user_id'];
     // Uses the OCI8 helper defined in config/db.php
     $count = oci_fetch_scalar(
-        'SELECT COUNT(*) FROM notifications WHERE user_id = :uid AND is_read = 0',
-        [':uid' => $uid]
+        'SELECT COUNT(*) FROM notifications WHERE user_id = :sid AND is_read = 0',
+        [':sid' => $uid]
     );
     return (int)($count ?? 0);
 }
@@ -300,8 +300,8 @@ function runMatchingForStudent($conn, int $studentId): int
     // Fetch student 1
     $s1 = oci_fetch_one_assoc(
         'SELECT user_id, department, monthly_budget, preferences
-         FROM users WHERE user_id = :uid AND role_name = :role AND account_status = :status',
-        [':uid' => $studentId, ':role' => 'STUDENT', ':status' => 'ACTIVE']
+         FROM users WHERE user_id = :sid AND role_name = :role AND account_status = :status',
+        [':sid' => $studentId, ':role' => 'STUDENT', ':status' => 'ACTIVE']
     );
     if (!$s1) return 0;
 
@@ -309,8 +309,8 @@ function runMatchingForStudent($conn, int $studentId): int
     $others = oci_fetch_all_assoc(
         'SELECT user_id, department, monthly_budget, preferences
          FROM users
-         WHERE role_name = :role AND account_status = :status AND user_id != :uid',
-        [':role' => 'STUDENT', ':status' => 'ACTIVE', ':uid' => $studentId]
+         WHERE role_name = :role AND account_status = :status AND user_id != :sid',
+        [':role' => 'STUDENT', ':status' => 'ACTIVE', ':sid' => $studentId]
     );
 
     $count = 0;
@@ -318,7 +318,7 @@ function runMatchingForStudent($conn, int $studentId): int
         $sid2 = (int)($s2['USER_ID'] ?? $s2['user_id']);
         // Call Oracle stored procedure for this pair
         $stmt = oci_parse($conn,
-            'BEGIN sp_calculate_match(:s1, :s2); END;'
+            'BEGIN PKG_NESTSYNC.sp_calculate_match(:s1, :s2); END;'
         );
         oci_bind_by_name($stmt, ':s1', $studentId);
         oci_bind_by_name($stmt, ':s2', $sid2);

@@ -93,7 +93,7 @@ $innerSql = "SELECT s.*, r.room_number, h.hall_name, u.full_name as student_name
              LEFT JOIN users u ON s.current_student_id=u.user_id 
              WHERE 1=1";
 $binds = [];
-if(isHallAdmin()) { $innerSql .= ' AND h.managed_by=:uid'; $binds[':uid'] = $uid; }
+if(isHallAdmin()) { $innerSql .= ' AND h.managed_by=:usr_id'; $binds[':usr_id'] = $uid; }
 if($hallFilter > 0) { $innerSql .= ' AND h.hall_id=:hid'; $binds[':hid'] = $hallFilter; }
 if($roomFilter > 0) { $innerSql .= ' AND r.room_id=:rid'; $binds[':rid'] = $roomFilter; }
 if($statFilter !== 'ALL') { $innerSql .= ' AND s.seat_status=:st'; $binds[':st'] = $statFilter; }

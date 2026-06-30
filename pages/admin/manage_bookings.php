@@ -28,9 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $remarks   = sanitize($_POST['admin_remarks'] ?? '');
 
             global $conn;
-            $stmt = oci_parse($conn, 'BEGIN PKG_NESTSYNC.sp_approve_booking(:bid,:uid,:rem); END;');
+            $stmt = oci_parse($conn, 'BEGIN PKG_NESTSYNC.sp_approve_booking(:bid,:usr_id,:rem); END;');
             oci_bind_by_name($stmt, ':bid', $bookingId);
-            oci_bind_by_name($stmt, ':uid', $uid);
+            oci_bind_by_name($stmt, ':usr_id', $uid);
             oci_bind_by_name($stmt, ':rem', $remarks);
             $ok = @oci_execute($stmt, OCI_COMMIT_ON_SUCCESS);
             $e = oci_error($stmt);
@@ -50,9 +50,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $remarks   = sanitize($_POST['admin_remarks'] ?? '');
 
             global $conn;
-            $stmt = oci_parse($conn, 'BEGIN PKG_NESTSYNC.sp_reject_booking(:bid,:uid,:rem); END;');
+            $stmt = oci_parse($conn, 'BEGIN PKG_NESTSYNC.sp_reject_booking(:bid,:usr_id,:rem); END;');
             oci_bind_by_name($stmt, ':bid', $bookingId);
-            oci_bind_by_name($stmt, ':uid', $uid);
+            oci_bind_by_name($stmt, ':usr_id', $uid);
             oci_bind_by_name($stmt, ':rem', $remarks);
             $ok = @oci_execute($stmt, OCI_COMMIT_ON_SUCCESS);
             $e = oci_error($stmt);
@@ -81,8 +81,8 @@ $binds    = [];
 
 // Hall Admin restriction
 if (isHallAdmin()) {
-    $innerSql .= ' AND hall_id IN (SELECT hall_id FROM halls WHERE managed_by=:uid)';
-    $binds[':uid'] = $uid;
+    $innerSql .= ' AND hall_id IN (SELECT hall_id FROM halls WHERE managed_by=:usr_id)';
+    $binds[':usr_id'] = $uid;
 }
 if ($statusFilter !== 'ALL') {
     $innerSql .= ' AND booking_status=:st';

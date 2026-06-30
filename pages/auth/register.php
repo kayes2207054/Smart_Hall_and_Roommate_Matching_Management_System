@@ -99,14 +99,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Welcome notification
                 oci_execute_dml(
                     'INSERT INTO notifications (user_id, title, message, notif_type)
-                     VALUES (:uid, :title, :msg, :type)',
+                     VALUES (:sid, :title, :msg, :type)',
                     [
-                        ':uid'   => $newUserId,
+                        ':sid'   => $newUserId,
                         ':title' => 'Welcome to NestSync! 🎉',
                         ':msg'   => 'Your account has been created. Browse halls and book your seat now!',
                         ':type'  => 'SYSTEM',
                     ]
                 );
+
+                // Run matching for the newly registered student
+                runMatchingForStudent($conn, $newUserId);
 
                 $success = true;
             } else {

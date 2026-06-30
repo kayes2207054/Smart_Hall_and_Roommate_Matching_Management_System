@@ -56,6 +56,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'updat
             );
             if ($ok) {
                 $_SESSION['name'] = $fullName;
+                // Recalculate roommate matches with updated profile
+                runMatchingForStudent($conn, $uid);
                 setFlash('success', 'Profile updated successfully!');
                 redirect(BASE_URL . '/pages/student/profile.php');
             } else {

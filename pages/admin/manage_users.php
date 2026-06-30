@@ -67,24 +67,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $sid    = sanitize($_POST['student_id_no'] ?? '');
             $budget = (float)($_POST['monthly_budget'] ?? 0);
             $gender = sanitize($_POST['gender'] ?? '');
+            $status = sanitize($_POST['account_status'] ?? '');
 
             if (!$name || !$email || !$role) $errors[] = 'Required fields missing.';
             
             if (empty($errors)) {
-                $count = (int)oci_fetch_scalar('SELECT COUNT(*) FROM users WHERE email=:e AND user_id!=:uid', [':e'=>$email, ':uid'=>$editId]);
-                if ($count > 0) $errors[] = 'Email already taken by another user.';
-                else {
+                $count = (int)oci_fetch_scalar('SELECT COUNT(*) FROM users WHERE email=:e AND user_id!=:usr_id', [':e'=>$email, ':usr_id'=>$editId]);
+                if ($count > 0) $errors[] = 'Email already in use.';
+                
+                if(empty($errors)) {
+                    $binds = [':n'=>$name,':e'=>$email,':r'=>$role,':d'=>$dept,':p'=>$phone,':sid'=>$sid,':b'=>$budget,':g'=>$gender,':usr_id'=>$editId];
                     $sql = 'UPDATE users SET full_name=:n, email=:e, role_name=:r, department=:d, phone=:p, student_id_no=:sid, monthly_budget=:b, gender=:g';
-                    $binds = [':n'=>$name,':e'=>$email,':r'=>$role,':d'=>$dept,':p'=>$phone,':sid'=>$sid,':b'=>$budget,':g'=>$gender,':uid'=>$editId];
-                    if (!empty($pass)) {
+                    
+                    if(!empty($pass)) {
                         if (strlen($pass) < 8) $errors[] = 'Password must be at least 8 chars.';
                         else {
                             $sql .= ', password_hash=:h';
                             $binds[':h'] = password_hash($pass, PASSWORD_BCRYPT);
                         }
                     }
+                    if($status) {
+                        $sql .= ', account_status=:st';
+                        $binds[':st'] = $status;
+                    }
                     if (empty($errors)) {
-                        $sql .= ' WHERE user_id=:uid';
+                        $sql .= ' WHERE user_id=:usr_id';
                         if (oci_execute_dml($sql, $binds)) {
                             setFlash('success', 'User updated.');
                             redirect(BASE_URL . '/pages/admin/manage_users.php');

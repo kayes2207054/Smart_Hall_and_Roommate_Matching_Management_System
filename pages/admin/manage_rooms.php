@@ -113,8 +113,8 @@ $innerSql = 'SELECT r.*, h.hall_name,
             FROM rooms r JOIN halls h ON r.hall_id=h.hall_id WHERE 1=1';
 $binds = [];
 if (isHallAdmin()) {
-    $innerSql .= ' AND h.managed_by=:uid';
-    $binds[':uid'] = $uid;
+    $innerSql .= ' AND h.managed_by=:usr_id';
+    $binds[':usr_id'] = $uid;
 }
 if ($hallFilter > 0) { $innerSql .= ' AND r.hall_id=:hid'; $binds[':hid'] = $hallFilter; }
 if ($typeFilter !== 'ALL') { $innerSql .= ' AND r.room_type=:t'; $binds[':t'] = $typeFilter; }
