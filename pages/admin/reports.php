@@ -35,7 +35,10 @@ include ROOT . '/includes/sidebar.php';
 
 <div class="d-flex align-items-center justify-content-between mb-4">
     <h1 class="page-heading mb-0"><i class="fas fa-chart-pie me-2 text-primary"></i>Reports & Analytics</h1>
-    <button class="btn btn-outline-primary" onclick="window.print()"><i class="fas fa-print me-1"></i>Print Report</button>
+    <div>
+        <a href="export_reports.php?type=occupancy" class="btn btn-outline-success me-2" id="exportBtn"><i class="fas fa-file-csv me-1"></i>Export CSV</a>
+        <button class="btn btn-outline-primary" onclick="window.print()"><i class="fas fa-print me-1"></i>Print Report</button>
+    </div>
 </div>
 
 <ul class="nav nav-tabs mb-4" id="reportTabs">
@@ -48,7 +51,7 @@ include ROOT . '/includes/sidebar.php';
     <!-- Occupancy -->
     <div class="tab-pane fade show active" id="tab-occ">
         <div class="row g-4 mb-4">
-            <?php foreach($hallsOcc as $h): $occ = (float)$h['OCCUPANCY_PERCENT']; ?>
+            <?php foreach($hallsOcc as $h): $occ = (float)$h['OCCUPANCY_PCT']; ?>
             <div class="col-md-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
@@ -78,7 +81,7 @@ include ROOT . '/includes/sidebar.php';
                         <td class="text-success"><?=(int)$h['BOOKED_SEATS']?></td>
                         <td class="text-primary"><?=(int)$h['AVAILABLE_SEATS']?></td>
                         <td class="text-warning"><?=(int)$h['MAINTENANCE_SEATS']?></td>
-                        <td><strong><?=(float)$h['OCCUPANCY_PERCENT']?>%</strong></td>
+                        <td><strong><?=(float)$h['OCCUPANCY_PCT']?>%</strong></td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -152,4 +155,18 @@ include ROOT . '/includes/sidebar.php';
 
 </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const exportBtn = document.getElementById('exportBtn');
+    const tabs = document.querySelectorAll('#reportTabs button[data-bs-toggle="tab"]');
+    tabs.forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function (e) {
+            const targetId = e.target.getAttribute('data-bs-target');
+            if(targetId === '#tab-occ') exportBtn.href = 'export_reports.php?type=occupancy';
+            else if(targetId === '#tab-book') exportBtn.href = 'export_reports.php?type=bookings';
+            else if(targetId === '#tab-stu') exportBtn.href = 'export_reports.php?type=students';
+        });
+    });
+});
+</script>
 <?php include ROOT . '/includes/footer.php'; ?>

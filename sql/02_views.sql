@@ -98,28 +98,35 @@ SELECT
     h.hall_id,
     h.hall_name,
     h.hall_location,
+    h.description,
     h.total_capacity,
     h.gender_type,
     h.hall_status,
     mgr.full_name                                       AS manager_name,
-    COUNT(DISTINCT r.room_id)                           AS total_rooms,
-    COUNT(s.seat_id)                                    AS total_seats,
-    SUM(CASE WHEN s.seat_status = 'AVAILABLE'    THEN 1 ELSE 0 END)  AS available_seats,
-    SUM(CASE WHEN s.seat_status = 'BOOKED'       THEN 1 ELSE 0 END)  AS booked_seats,
-    SUM(CASE WHEN s.seat_status = 'RESERVED'     THEN 1 ELSE 0 END)  AS reserved_seats,
-    SUM(CASE WHEN s.seat_status = 'MAINTENANCE'  THEN 1 ELSE 0 END)  AS maintenance_seats,
+    NVL(stats.total_rooms, 0)                           AS total_rooms,
+    NVL(stats.total_seats, 0)                           AS total_seats,
+    NVL(stats.available_seats, 0)                       AS available_seats,
+    NVL(stats.booked_seats, 0)                          AS booked_seats,
+    NVL(stats.reserved_seats, 0)                        AS reserved_seats,
+    NVL(stats.maintenance_seats, 0)                     AS maintenance_seats,
     ROUND(
-        NVL(SUM(CASE WHEN s.seat_status = 'BOOKED' THEN 1 ELSE 0 END), 0)
-        * 100
-        / NULLIF(COUNT(s.seat_id), 0),
+        NVL(stats.booked_seats, 0) * 100 / NULLIF(stats.total_seats, 0),
     2)                                                  AS occupancy_pct
 FROM halls h
-LEFT JOIN users  mgr ON h.managed_by = mgr.user_id
-LEFT JOIN rooms  r   ON h.hall_id    = r.hall_id
-LEFT JOIN seats  s   ON r.room_id    = s.room_id
-GROUP BY
-    h.hall_id, h.hall_name, h.hall_location,
-    h.total_capacity, h.gender_type, h.hall_status, mgr.full_name;
+LEFT JOIN users mgr ON h.managed_by = mgr.user_id
+LEFT JOIN (
+    SELECT
+        r.hall_id,
+        COUNT(DISTINCT r.room_id) AS total_rooms,
+        COUNT(s.seat_id) AS total_seats,
+        SUM(CASE WHEN s.seat_status = 'AVAILABLE'    THEN 1 ELSE 0 END) AS available_seats,
+        SUM(CASE WHEN s.seat_status = 'BOOKED'       THEN 1 ELSE 0 END) AS booked_seats,
+        SUM(CASE WHEN s.seat_status = 'RESERVED'     THEN 1 ELSE 0 END) AS reserved_seats,
+        SUM(CASE WHEN s.seat_status = 'MAINTENANCE'  THEN 1 ELSE 0 END) AS maintenance_seats
+    FROM rooms r
+    LEFT JOIN seats s ON r.room_id = s.room_id
+    GROUP BY r.hall_id
+) stats ON h.hall_id = stats.hall_id;
 
 
 -- ================================================================

@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'mark_
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'mark_one') {
     $nid = (int)($_POST['notif_id'] ?? 0);
     if (verifyCsrfToken($_POST['csrf_token'] ?? '') && $nid > 0) {
-        oci_execute_dml('UPDATE notifications SET is_read=1 WHERE notif_id=:n AND user_id=:u', [':n' => $nid, ':u' => $uid]);
+        oci_execute_dml('UPDATE notifications SET is_read=1 WHERE notification_id=:n AND user_id=:u', [':n' => $nid, ':u' => $uid]);
     }
     redirect(BASE_URL . '/pages/student/notifications.php');
 }
@@ -36,7 +36,7 @@ $filter      = sanitize($_GET['filter'] ?? 'all');
 $currentPage = max(1, (int)($_GET['page'] ?? 1));
 $perPage     = 20;
 
-$innerSql = 'SELECT notif_id, user_id, title, message, notif_type, is_read, created_at FROM notifications WHERE user_id=:u';
+$innerSql = 'SELECT notification_id, user_id, title, message, notif_type, is_read, created_at FROM notifications WHERE user_id=:u';
 $binds    = [':u' => $uid];
 if ($filter === 'unread') {
     $innerSql .= ' AND is_read=0';
@@ -149,7 +149,7 @@ include ROOT . '/includes/sidebar.php';
                         <form method="POST" class="flex-shrink-0">
                             <?= csrfField() ?>
                             <input type="hidden" name="action" value="mark_one">
-                            <input type="hidden" name="notif_id" value="<?= (int)$n['NOTIF_ID'] ?>">
+                            <input type="hidden" name="notif_id" value="<?= (int)$n['NOTIFICATION_ID'] ?>">
                             <button type="submit" class="btn btn-sm btn-outline-secondary" title="Mark as read">
                                 <i class="fas fa-check"></i>
                             </button>

@@ -121,7 +121,7 @@ if ($typeFilter !== 'ALL') { $innerSql .= ' AND r.room_type=:t'; $binds[':t'] = 
 if ($statFilter !== 'ALL') { $innerSql .= ' AND r.room_status=:s'; $binds[':s'] = $statFilter; }
 if ($search !== '') { $innerSql .= ' AND r.room_number LIKE :search'; $binds[':search'] = '%'.$search.'%'; }
 
-$res = oci_paginate($innerSql, $binds, $currentPage, 15, 'h.hall_name ASC, r.floor_number ASC, r.room_number ASC');
+$res = oci_paginate($innerSql, $binds, $currentPage, 15, 'hall_name ASC, floor_number ASC, room_number ASC');
 $rooms = $res['rows'];
 $total = $res['total'];
 $baseUrl = BASE_URL . '/pages/admin/manage_rooms.php?hall_id='.$hallFilter.'&type='.urlencode($typeFilter).'&status='.urlencode($statFilter).'&search='.urlencode($search);

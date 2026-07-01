@@ -119,7 +119,7 @@ include ROOT . '/includes/sidebar.php';
 </div>
 
 <div class="row g-4">
-    <?php foreach($halls as $h): $occ = (float)$h['OCCUPANCY_PERCENT']; $hid=(int)$h['HALL_ID']; ?>
+    <?php foreach($halls as $h): $occ = (float)$h['OCCUPANCY_PCT']; $hid=(int)$h['HALL_ID']; ?>
     <div class="col-md-6 col-lg-4">
         <div class="card h-100 shadow-sm border-0" style="border-radius:12px;">
             <div class="card-body p-4">

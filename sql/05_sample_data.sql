@@ -26,76 +26,76 @@ ALTER TRIGGER trg_prevent_seat_dbl_res DISABLE;
 -- ----------------------------------------------------------------
 INSERT INTO users (full_name, email, password_hash, role_name, department, phone, student_id_no, monthly_budget, preferences, gender, account_status)
 VALUES ('System Administrator', 'admin@nestsync.edu',
-        '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+        '$2y$10$MgTTx70/JBBW9e.JnBrajuzNhRR2Pu3Ej3/EAL7Kq0pyXrLCXZ4z6',
         'SYSTEM_ADMIN', 'IT', '01700-000001', NULL, 0, NULL, 'MALE', 'ACTIVE');
 
 INSERT INTO users (full_name, email, password_hash, role_name, department, phone, student_id_no, monthly_budget, preferences, gender, account_status)
 VALUES ('Kamal Hossain', 'halladmin1@nestsync.edu',
-        '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+        '$2y$10$MgTTx70/JBBW9e.JnBrajuzNhRR2Pu3Ej3/EAL7Kq0pyXrLCXZ4z6',
         'HALL_ADMIN', 'Administration', '01700-000002', NULL, 0, NULL, 'MALE', 'ACTIVE');
 
 INSERT INTO users (full_name, email, password_hash, role_name, department, phone, student_id_no, monthly_budget, preferences, gender, account_status)
 VALUES ('Rina Begum', 'halladmin2@nestsync.edu',
-        '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+        '$2y$10$MgTTx70/JBBW9e.JnBrajuzNhRR2Pu3Ej3/EAL7Kq0pyXrLCXZ4z6',
         'HALL_ADMIN', 'Administration', '01700-000003', NULL, 0, NULL, 'FEMALE', 'ACTIVE');
 
 INSERT INTO users (full_name, email, password_hash, role_name, department, phone, student_id_no, monthly_budget, preferences, gender, account_status)
 VALUES ('Rahim Uddin', 'rahim@nestsync.edu',
-        '$2y$10$TKh8H1.PfuBiDCTFKFW6AOtNTgmFyUcMRkm06WpDfS.Goo1MjdXYe',
+        '$2y$10$m.U9Hmtg76QW9MKzZsoP8eigzVE1khnc9Ldifw0haYwzWjFz.DvEW',
         'STUDENT', 'CSE', '01711-111001', 'STU-2021-001', 4500,
         'Quiet, non-smoker, study-focused, clean', 'MALE', 'ACTIVE');
 
 INSERT INTO users (full_name, email, password_hash, role_name, department, phone, student_id_no, monthly_budget, preferences, gender, account_status)
 VALUES ('Nusrat Jahan', 'nusrat@nestsync.edu',
-        '$2y$10$TKh8H1.PfuBiDCTFKFW6AOtNTgmFyUcMRkm06WpDfS.Goo1MjdXYe',
+        '$2y$10$m.U9Hmtg76QW9MKzZsoP8eigzVE1khnc9Ldifw0haYwzWjFz.DvEW',
         'STUDENT', 'EEE', '01711-111002', 'STU-2021-002', 4000,
         'Clean room, early sleeper, quiet', 'FEMALE', 'ACTIVE');
 
 INSERT INTO users (full_name, email, password_hash, role_name, department, phone, student_id_no, monthly_budget, preferences, gender, account_status)
 VALUES ('Sabbir Hasan', 'sabbir@nestsync.edu',
-        '$2y$10$TKh8H1.PfuBiDCTFKFW6AOtNTgmFyUcMRkm06WpDfS.Goo1MjdXYe',
+        '$2y$10$m.U9Hmtg76QW9MKzZsoP8eigzVE1khnc9Ldifw0haYwzWjFz.DvEW',
         'STUDENT', 'CSE', '01711-111003', 'STU-2021-003', 5000,
         'Study-focused, quiet, clean environment', 'MALE', 'ACTIVE');
 
 INSERT INTO users (full_name, email, password_hash, role_name, department, phone, student_id_no, monthly_budget, preferences, gender, account_status)
 VALUES ('Fatema Khatun', 'fatema@nestsync.edu',
-        '$2y$10$TKh8H1.PfuBiDCTFKFW6AOtNTgmFyUcMRkm06WpDfS.Goo1MjdXYe',
+        '$2y$10$m.U9Hmtg76QW9MKzZsoP8eigzVE1khnc9Ldifw0haYwzWjFz.DvEW',
         'STUDENT', 'BBA', '01711-111004', 'STU-2021-004', 3500,
         'Clean, early riser, organized', 'FEMALE', 'ACTIVE');
 
 INSERT INTO users (full_name, email, password_hash, role_name, department, phone, student_id_no, monthly_budget, preferences, gender, account_status)
 VALUES ('Karim Ahmed', 'karim@nestsync.edu',
-        '$2y$10$TKh8H1.PfuBiDCTFKFW6AOtNTgmFyUcMRkm06WpDfS.Goo1MjdXYe',
+        '$2y$10$m.U9Hmtg76QW9MKzZsoP8eigzVE1khnc9Ldifw0haYwzWjFz.DvEW',
         'STUDENT', 'CSE', '01711-111005', 'STU-2021-005', 4800,
         'Quiet, study-focused, non-smoker', 'MALE', 'ACTIVE');
 
 INSERT INTO users (full_name, email, password_hash, role_name, department, phone, student_id_no, monthly_budget, preferences, gender, account_status)
 VALUES ('Rifat Islam', 'rifat@nestsync.edu',
-        '$2y$10$TKh8H1.PfuBiDCTFKFW6AOtNTgmFyUcMRkm06WpDfS.Goo1MjdXYe',
+        '$2y$10$m.U9Hmtg76QW9MKzZsoP8eigzVE1khnc9Ldifw0haYwzWjFz.DvEW',
         'STUDENT', 'EEE', '01711-111006', 'STU-2021-006', 3800,
         'Study environment, clean room', 'MALE', 'ACTIVE');
 
 INSERT INTO users (full_name, email, password_hash, role_name, department, phone, student_id_no, monthly_budget, preferences, gender, account_status)
 VALUES ('Sumaiya Begum', 'sumaiya@nestsync.edu',
-        '$2y$10$TKh8H1.PfuBiDCTFKFW6AOtNTgmFyUcMRkm06WpDfS.Goo1MjdXYe',
+        '$2y$10$m.U9Hmtg76QW9MKzZsoP8eigzVE1khnc9Ldifw0haYwzWjFz.DvEW',
         'STUDENT', 'BBA', '01711-111007', 'STU-2021-007', 4200,
         'Quiet, clean, early riser', 'FEMALE', 'ACTIVE');
 
 INSERT INTO users (full_name, email, password_hash, role_name, department, phone, student_id_no, monthly_budget, preferences, gender, account_status)
 VALUES ('Imran Khan', 'imran@nestsync.edu',
-        '$2y$10$TKh8H1.PfuBiDCTFKFW6AOtNTgmFyUcMRkm06WpDfS.Goo1MjdXYe',
+        '$2y$10$m.U9Hmtg76QW9MKzZsoP8eigzVE1khnc9Ldifw0haYwzWjFz.DvEW',
         'STUDENT', 'ME', '01711-111008', 'STU-2021-008', 5500,
         'Non-smoker, quiet environment', 'MALE', 'ACTIVE');
 
 INSERT INTO users (full_name, email, password_hash, role_name, department, phone, student_id_no, monthly_budget, preferences, gender, account_status)
 VALUES ('Ayesha Siddiqua', 'ayesha@nestsync.edu',
-        '$2y$10$TKh8H1.PfuBiDCTFKFW6AOtNTgmFyUcMRkm06WpDfS.Goo1MjdXYe',
+        '$2y$10$m.U9Hmtg76QW9MKzZsoP8eigzVE1khnc9Ldifw0haYwzWjFz.DvEW',
         'STUDENT', 'CSE', '01711-111009', 'STU-2021-009', 4600,
         'Study-focused, quiet, clean', 'FEMALE', 'ACTIVE');
 
 INSERT INTO users (full_name, email, password_hash, role_name, department, phone, student_id_no, monthly_budget, preferences, gender, account_status)
 VALUES ('Tanvir Hossain', 'tanvir@nestsync.edu',
-        '$2y$10$TKh8H1.PfuBiDCTFKFW6AOtNTgmFyUcMRkm06WpDfS.Goo1MjdXYe',
+        '$2y$10$m.U9Hmtg76QW9MKzZsoP8eigzVE1khnc9Ldifw0haYwzWjFz.DvEW',
         'STUDENT', 'EEE', '01711-111010', 'STU-2021-010', 4100,
         'Clean room, study-focused environment', 'MALE', 'ACTIVE');
 

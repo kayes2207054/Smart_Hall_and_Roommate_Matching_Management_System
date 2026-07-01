@@ -98,7 +98,7 @@ if($hallFilter > 0) { $innerSql .= ' AND h.hall_id=:hid'; $binds[':hid'] = $hall
 if($roomFilter > 0) { $innerSql .= ' AND r.room_id=:rid'; $binds[':rid'] = $roomFilter; }
 if($statFilter !== 'ALL') { $innerSql .= ' AND s.seat_status=:st'; $binds[':st'] = $statFilter; }
 
-$res = oci_paginate($innerSql, $binds, $currentPage, 20, 'h.hall_name ASC, r.room_number ASC, s.seat_label ASC');
+$res = oci_paginate($innerSql, $binds, $currentPage, 20, 'hall_name ASC, room_number ASC, seat_label ASC');
 $seats = $res['rows'];
 $total = $res['total'];
 $baseUrl = BASE_URL . '/pages/admin/manage_seats.php?hall_id='.$hallFilter.'&room_id='.$roomFilter.'&status='.urlencode($statFilter);
