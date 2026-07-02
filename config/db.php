@@ -30,7 +30,7 @@ $oraHost     = 'localhost';
 $oraPort     = 1521;
 $oraService  = 'XE';       // Oracle 11g uses 'XE'
 $oraUser     = 'nestsync';     // Schema/user that owns all NestSync tables
-$oraPass     = 'nestsync';     // Set the same password when creating the schema
+$oraPass     = '123456';     // Set the same password when creating the schema
 $oraCharset  = 'AL32UTF8';
 
 $oraConnStr = "//{$oraHost}:{$oraPort}/{$oraService}";

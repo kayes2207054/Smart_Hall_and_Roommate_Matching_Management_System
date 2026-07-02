@@ -36,7 +36,7 @@ if ($type === 'occupancy') {
             $h['BOOKED_SEATS'],
             $h['AVAILABLE_SEATS'],
             $h['MAINTENANCE_SEATS'],
-            $h['OCCUPANCY_PERCENT'] . '%'
+            $h['OCCUPANCY_PCT'] . '%'
         ]);
     }
 } elseif ($type === 'bookings') {
