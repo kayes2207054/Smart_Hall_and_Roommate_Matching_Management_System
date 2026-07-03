@@ -235,71 +235,73 @@ include ROOT . '/includes/sidebar.php';
                     </div>
                 </td>
             </tr>
-
-            <!-- Approve Modal -->
-            <div class="modal fade" id="approveModal<?=$bId?>" tabindex="-1">
-                <div class="modal-dialog">
-                    <form class="modal-content" method="POST">
-                        <?=csrfField()?><input type="hidden" name="action" value="approve_booking"><input type="hidden" name="booking_id" value="<?=$bId?>">
-                        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-check-circle text-success me-2"></i>Approve Booking</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                        <div class="modal-body">
-                            <p>Approve booking for <strong><?=htmlspecialchars($b['STUDENT_NAME'])?></strong>?<br>
-                            Seat: <strong><?=htmlspecialchars($b['HALL_NAME'])?> - Room <?=htmlspecialchars($b['ROOM_NUMBER'])?> - <?=htmlspecialchars($b['SEAT_LABEL'])?></strong></p>
-                            <label class="form-label fw-semibold">Admin Remarks (Optional)</label>
-                            <textarea name="admin_remarks" class="form-control" rows="2" placeholder="Visible to student"></textarea>
-                        </div>
-                        <div class="modal-footer"><button type="submit" class="btn btn-success">Confirm Approve</button></div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Reject Modal -->
-            <div class="modal fade" id="rejectModal<?=$bId?>" tabindex="-1">
-                <div class="modal-dialog">
-                    <form class="modal-content" method="POST">
-                        <?=csrfField()?><input type="hidden" name="action" value="reject_booking"><input type="hidden" name="booking_id" value="<?=$bId?>">
-                        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-times-circle text-danger me-2"></i><?=($b['BOOKING_STATUS']==='APPROVED'?'Revoke':'Reject')?> Booking</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                        <div class="modal-body">
-                            <p><?=($b['BOOKING_STATUS']==='APPROVED'?'Revoke':'Reject')?> booking for <strong><?=htmlspecialchars($b['STUDENT_NAME'])?></strong>?<br>
-                            Seat: <strong><?=htmlspecialchars($b['HALL_NAME'])?> - Room <?=htmlspecialchars($b['ROOM_NUMBER'])?> - <?=htmlspecialchars($b['SEAT_LABEL'])?></strong></p>
-                            <label class="form-label fw-semibold">Admin Remarks (Optional)</label>
-                            <textarea name="admin_remarks" class="form-control" rows="2" placeholder="Reason for rejection/revocation"></textarea>
-                        </div>
-                        <div class="modal-footer"><button type="submit" class="btn btn-danger">Confirm <?=($b['BOOKING_STATUS']==='APPROVED'?'Revoke':'Reject')?></button></div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Detail Modal -->
-            <div class="modal fade" id="detailModal<?=$bId?>" tabindex="-1">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header"><h5 class="modal-title">Booking #<?=$bId?> Details</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                        <div class="modal-body">
-                            <div class="row g-3">
-                                <div class="col-sm-6"><div class="p-3 bg-light rounded"><small class="text-muted d-block">Student</small><strong><?=htmlspecialchars($b['STUDENT_NAME'])?></strong><br><?=htmlspecialchars($b['STUDENT_EMAIL'])?></div></div>
-                                <div class="col-sm-6"><div class="p-3 bg-light rounded"><small class="text-muted d-block">Status</small><?=statusBadge($b['BOOKING_STATUS'])?></div></div>
-                                <div class="col-sm-6"><div class="p-3 bg-light rounded"><small class="text-muted d-block">Hall & Room</small><strong><?=htmlspecialchars($b['HALL_NAME'])?> - Room <?=htmlspecialchars($b['ROOM_NUMBER'])?></strong></div></div>
-                                <div class="col-sm-6"><div class="p-3 bg-light rounded"><small class="text-muted d-block">Seat & Rent</small><strong><?=htmlspecialchars($b['SEAT_LABEL'])?> - <?=formatCurrency((float)$b['MONTHLY_RENT'])?>/mo</strong></div></div>
-                                <div class="col-sm-6"><div class="p-3 bg-light rounded"><small class="text-muted d-block">Requested At</small><?=formatDate($b['REQUESTED_AT'])?></div></div>
-                                <div class="col-sm-6"><div class="p-3 bg-light rounded"><small class="text-muted d-block">Reviewed At & By</small><?=$b['REVIEWED_AT']?formatDate($b['REVIEWED_AT']).' by '.htmlspecialchars($b['REVIEWED_BY_NAME']):'—'?></div></div>
-                                <?php if(!empty($b['NOTES'])): ?>
-                                <div class="col-12"><div class="p-3 bg-light rounded"><small class="text-muted d-block">Student Notes</small><?=htmlspecialchars($b['NOTES'])?></div></div>
-                                <?php endif; ?>
-                                <?php if(!empty($b['ADMIN_REMARKS'])): ?>
-                                <div class="col-12"><div class="p-3 rounded" style="background:#fef9ec;"><small class="text-muted d-block">Admin Remarks</small><?=htmlspecialchars($b['ADMIN_REMARKS'])?></div></div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
-                    </div>
-                </div>
-            </div>
             <?php endforeach; ?>
         </tbody>
     </table>
     <?php if(empty($bookings)): ?><div class="p-4 text-center text-muted">No bookings found.</div><?php endif; ?>
 </div>
+
+<?php foreach($bookings as $b): $bId = (int)$b['BOOKING_ID']; ?>
+<!-- Approve Modal -->
+<div class="modal fade" id="approveModal<?=$bId?>" tabindex="-1">
+    <div class="modal-dialog">
+        <form class="modal-content" method="POST">
+            <?=csrfField()?><input type="hidden" name="action" value="approve_booking"><input type="hidden" name="booking_id" value="<?=$bId?>">
+            <div class="modal-header"><h5 class="modal-title"><i class="fas fa-check-circle text-success me-2"></i>Approve Booking</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <p>Approve booking for <strong><?=htmlspecialchars($b['STUDENT_NAME'])?></strong>?<br>
+                Seat: <strong><?=htmlspecialchars($b['HALL_NAME'])?> - Room <?=htmlspecialchars($b['ROOM_NUMBER'])?> - <?=htmlspecialchars($b['SEAT_LABEL'])?></strong></p>
+                <label class="form-label fw-semibold">Admin Remarks (Optional)</label>
+                <textarea name="admin_remarks" class="form-control" rows="2" placeholder="Visible to student"></textarea>
+            </div>
+            <div class="modal-footer"><button type="submit" class="btn btn-success">Confirm Approve</button></div>
+        </form>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal<?=$bId?>" tabindex="-1">
+    <div class="modal-dialog">
+        <form class="modal-content" method="POST">
+            <?=csrfField()?><input type="hidden" name="action" value="reject_booking"><input type="hidden" name="booking_id" value="<?=$bId?>">
+            <div class="modal-header"><h5 class="modal-title"><i class="fas fa-times-circle text-danger me-2"></i><?=($b['BOOKING_STATUS']==='APPROVED'?'Revoke':'Reject')?> Booking</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <p><?=($b['BOOKING_STATUS']==='APPROVED'?'Revoke':'Reject')?> booking for <strong><?=htmlspecialchars($b['STUDENT_NAME'])?></strong>?<br>
+                Seat: <strong><?=htmlspecialchars($b['HALL_NAME'])?> - Room <?=htmlspecialchars($b['ROOM_NUMBER'])?> - <?=htmlspecialchars($b['SEAT_LABEL'])?></strong></p>
+                <label class="form-label fw-semibold">Admin Remarks (Optional)</label>
+                <textarea name="admin_remarks" class="form-control" rows="2" placeholder="Reason for rejection/revocation"></textarea>
+            </div>
+            <div class="modal-footer"><button type="submit" class="btn btn-danger">Confirm <?=($b['BOOKING_STATUS']==='APPROVED'?'Revoke':'Reject')?></button></div>
+        </form>
+    </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal fade" id="detailModal<?=$bId?>" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Booking #<?=$bId?> Details</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-sm-6"><div class="p-3 bg-light rounded"><small class="text-muted d-block">Student</small><strong><?=htmlspecialchars($b['STUDENT_NAME'])?></strong><br><?=htmlspecialchars($b['STUDENT_EMAIL'])?></div></div>
+                    <div class="col-sm-6"><div class="p-3 bg-light rounded"><small class="text-muted d-block">Status</small><?=statusBadge($b['BOOKING_STATUS'])?></div></div>
+                    <div class="col-sm-6"><div class="p-3 bg-light rounded"><small class="text-muted d-block">Hall & Room</small><strong><?=htmlspecialchars($b['HALL_NAME'])?> - Room <?=htmlspecialchars($b['ROOM_NUMBER'])?></strong></div></div>
+                    <div class="col-sm-6"><div class="p-3 bg-light rounded"><small class="text-muted d-block">Seat & Rent</small><strong><?=htmlspecialchars($b['SEAT_LABEL'])?> - <?=formatCurrency((float)$b['MONTHLY_RENT'])?>/mo</strong></div></div>
+                    <div class="col-sm-6"><div class="p-3 bg-light rounded"><small class="text-muted d-block">Requested At</small><?=formatDate($b['REQUESTED_AT'])?></div></div>
+                    <div class="col-sm-6"><div class="p-3 bg-light rounded"><small class="text-muted d-block">Reviewed At & By</small><?=$b['REVIEWED_AT']?formatDate($b['REVIEWED_AT']).' by '.htmlspecialchars($b['REVIEWED_BY_NAME']):'—'?></div></div>
+                    <?php if(!empty($b['NOTES'])): ?>
+                    <div class="col-12"><div class="p-3 bg-light rounded"><small class="text-muted d-block">Student Notes</small><?=htmlspecialchars($b['NOTES'])?></div></div>
+                    <?php endif; ?>
+                    <?php if(!empty($b['ADMIN_REMARKS'])): ?>
+                    <div class="col-12"><div class="p-3 rounded" style="background:#fef9ec;"><small class="text-muted d-block">Admin Remarks</small><?=htmlspecialchars($b['ADMIN_REMARKS'])?></div></div>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
+        </div>
+    </div>
+</div>
+<?php endforeach; ?>
 <?php if($total>10): ?><div class="mt-3"><?=renderPagination($total,$currentPage,10,$baseUrl)?></div><?php endif; ?>
 
 </div>
