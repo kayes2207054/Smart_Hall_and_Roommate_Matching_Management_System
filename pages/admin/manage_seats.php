@@ -52,10 +52,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($action === 'unassign_seat') {
             $sid = (int)$_POST['seat_id'];
-            if(oci_execute_dml('UPDATE seats SET seat_status=\'AVAILABLE\', current_student_id=NULL WHERE seat_id=:s', [':s'=>$sid])) {
-                setFlash('success', 'Student unassigned. Seat is now available.');
-                redirect(BASE_URL . '/pages/admin/manage_seats.php');
-            } else $errors[] = 'Failed to unassign seat.';
+            global $conn;
+            
+            // Find if there is an APPROVED booking for this seat to properly revoke it
+            $bId = (int)oci_fetch_scalar(
+                "SELECT booking_id FROM bookings WHERE seat_id=:s AND booking_status='APPROVED'",
+                [':s' => $sid]
+            );
+
+            if ($bId > 0) {
+                // Call sp_reject_booking to handle everything gracefully (status update, seat release, notification)
+                $stmt = oci_parse($conn, 'BEGIN PKG_NESTSYNC.sp_reject_booking(:bid,:uid,:rem); END;');
+                oci_bind_by_name($stmt, ':bid', $bId);
+                oci_bind_by_name($stmt, ':uid', $uid);
+                $remarks = 'Administratively unassigned from seat management.';
+                oci_bind_by_name($stmt, ':rem', $remarks);
+                
+                if (@oci_execute($stmt, OCI_COMMIT_ON_SUCCESS)) {
+                    setFlash('success', 'Student unassigned and booking revoked successfully.');
+                } else {
+                    $errors[] = 'Failed to revoke booking and unassign seat.';
+                }
+                oci_free_statement($stmt);
+            } else {
+                // Fallback for data inconsistency: just release the seat if no active booking found
+                if(oci_execute_dml('UPDATE seats SET seat_status=\'AVAILABLE\', current_student_id=NULL WHERE seat_id=:s', [':s'=>$sid])) {
+                    setFlash('success', 'Student unassigned. Seat is now available.');
+                } else {
+                    $errors[] = 'Failed to unassign seat.';
+                }
+            }
+            if (empty($errors)) redirect(BASE_URL . '/pages/admin/manage_seats.php');
         }
 
         if ($action === 'delete_seat') {
