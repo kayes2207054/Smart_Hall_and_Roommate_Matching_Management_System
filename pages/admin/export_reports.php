@@ -59,7 +59,15 @@ if ($type === 'occupancy') {
     }
 } elseif ($type === 'students') {
     fputcsv($output, ['Department', 'Total Students', 'Average Budget (BDT)']);
-    $stuDeptStats = oci_fetch_all_assoc("SELECT department, count(*) as cnt, avg(monthly_budget) as avg_budget FROM users WHERE role_name='STUDENT' GROUP BY department ORDER BY cnt DESC");
+    
+    $whereClause = "role_name='STUDENT'";
+    $binds = [];
+    if (isHallAdmin()) {
+        $whereClause .= " AND user_id IN (SELECT current_student_id FROM seats s JOIN rooms r ON s.room_id = r.room_id JOIN halls h ON r.hall_id = h.hall_id WHERE h.managed_by = :u AND current_student_id IS NOT NULL)";
+        $binds[':u'] = $uid;
+    }
+    
+    $stuDeptStats = oci_fetch_all_assoc("SELECT department, count(*) as cnt, avg(monthly_budget) as avg_budget FROM users WHERE $whereClause GROUP BY department ORDER BY cnt DESC", $binds);
     foreach ($stuDeptStats as $s) {
         if (!$s['DEPARTMENT']) continue;
         fputcsv($output, [
@@ -72,7 +80,7 @@ if ($type === 'occupancy') {
     // Empty line to separate Gender stats
     fputcsv($output, []);
     fputcsv($output, ['Gender', 'Total Students']);
-    $genderStats = oci_fetch_all_assoc("SELECT gender, count(*) as cnt FROM users WHERE role_name='STUDENT' GROUP BY gender");
+    $genderStats = oci_fetch_all_assoc("SELECT gender, count(*) as cnt FROM users WHERE $whereClause GROUP BY gender", $binds);
     foreach ($genderStats as $g) {
         fputcsv($output, [
             $g['GENDER'] ?? 'Unknown',

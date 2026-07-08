@@ -56,6 +56,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'book_
                          VALUES (:u,\'Booking Submitted\',\'Your seat booking has been submitted and is under review.\',\'BOOKING\')',
                         [':u' => $uid]
                     );
+                    
+                    // Notify Hall Admin
+                    $hallAdminId = (int)oci_fetch_scalar('SELECT managed_by FROM halls WHERE hall_id=:h', [':h'=>$hallId]);
+                    if ($hallAdminId > 0) {
+                        oci_execute_dml(
+                            'INSERT INTO notifications (user_id,title,message,notif_type)
+                             VALUES (:u,\'New Booking Request\',\'A new seat booking request has been submitted for your hall.\',\'BOOKING\')',
+                            [':u' => $hallAdminId]
+                        );
+                    }
+
                     setFlash('success', 'Booking submitted successfully! You will be notified when it is reviewed.');
                     redirect(BASE_URL . '/pages/student/my_bookings.php');
                 } else {
