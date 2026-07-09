@@ -79,7 +79,7 @@ include ROOT . '/includes/sidebar.php';
     <!-- Welcome Banner -->
     <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
         <div>
-            <h1 class="page-heading mb-1">Welcome back, <?= htmlspecialchars(currentUserName(), ENT_QUOTES, 'UTF-8') ?>! 👋</h1>
+            <h1 class="page-heading mb-1">Welcome back, <?= htmlspecialchars(currentUserName(), ENT_QUOTES, 'UTF-8') ?>! <i class="fas fa-hand-sparkles text-warning ms-1"></i></h1>
             <p class="text-muted mb-0"><i class="fas fa-calendar-alt me-1"></i><?= date('l, d F Y') ?></p>
         </div>
         <a href="<?= BASE_URL ?>/pages/student/browse_halls.php" class="btn btn-primary">
@@ -143,7 +143,7 @@ include ROOT . '/includes/sidebar.php';
                     <div class="row g-3">
                         <div class="col-sm-4 col-md-2 text-center">
                             <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:26px;color:#fff;">
-                                🛏️
+                                <i class="fas fa-bed"></i>
                             </div>
                             <div class="fw-bold fs-5"><?= htmlspecialchars($assignment['SEAT_LABEL'], ENT_QUOTES, 'UTF-8') ?></div>
                             <small class="text-muted">Your Seat</small>
@@ -189,7 +189,7 @@ include ROOT . '/includes/sidebar.php';
             </div>
             <?php else: ?>
             <div class="table-wrapper text-center py-5">
-                <div style="font-size:56px;margin-bottom:12px;">🏛️</div>
+                <div style="font-size:56px;margin-bottom:12px;"><i class="fas fa-building text-muted"></i></div>
                 <h4 class="fw-semibold mb-2">No Seat Assigned Yet</h4>
                 <p class="text-muted mb-4">Browse available halls and book your seat to get started!</p>
                 <a href="<?= BASE_URL ?>/pages/student/browse_halls.php" class="btn btn-primary btn-lg">

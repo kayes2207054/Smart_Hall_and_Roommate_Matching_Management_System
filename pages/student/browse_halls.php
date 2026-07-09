@@ -136,7 +136,7 @@ include ROOT . '/includes/sidebar.php';
         <div class="card shadow-sm">
             <div class="card-body">
                 <div class="empty-state py-5">
-                    <div class="empty-state-icon">🏛️</div>
+                    <div class="empty-state-icon"><i class="fas fa-university text-muted mb-3"></i></div>
                     <h5>No Halls Found</h5>
                     <p class="text-muted">
                         <?php if ($search !== '' || $genderFilter !== 'ALL'): ?>
@@ -190,7 +190,7 @@ include ROOT . '/includes/sidebar.php';
                         </div>
                         <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-3"
                              style="width:44px;height:44px;background:var(--primary-light);font-size:20px;">
-                            🏛️
+                            <i class="fas fa-building text-primary"></i>
                         </div>
                     </div>
                 </div>
