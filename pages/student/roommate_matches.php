@@ -83,15 +83,22 @@ include ROOT . '/includes/sidebar.php';
     <!-- Page Header -->
     <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
         <div>
-            <h1 class="page-heading mb-1">
-                <i class="fas fa-user-friends me-2" style="color:#7c3aed;"></i>Roommate Matches
-                <span class="badge bg-primary ms-1" style="font-size:14px;"><?= $total ?></span>
+            <h1 class="page-heading mb-1 fw-bold" style="color: var(--dark);">
+                <i class="fas fa-user-friends me-2" style="color: var(--primary);"></i>Roommate Matches
+                <span class="badge rounded-pill ms-2" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); font-size: 14px; padding: 0.5em 0.8em;">
+                    <?= $total ?> Suggestion<?= $total !== 1 ? 's' : '' ?>
+                </span>
             </h1>
-            <nav aria-label="breadcrumb"><ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/pages/student/dashboard.php">Dashboard</a></li>
-                <li class="breadcrumb-item active">Roommate Matches</li>
-            </ol></nav>
+            <p class="text-muted mb-0" style="font-size: 0.95rem;">
+                Discover compatible roommates based on your preferences, department, and budget.
+            </p>
         </div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/pages/student/dashboard.php" class="text-decoration-none">Dashboard</a></li>
+                <li class="breadcrumb-item active">Roommate Matches</li>
+            </ol>
+        </nav>
     </div>
 
     <!-- Filter Bar -->
@@ -132,19 +139,25 @@ include ROOT . '/includes/sidebar.php';
 
     <!-- Match Cards -->
     <?php if (empty($matches)): ?>
-    <div class="card shadow-sm">
-        <div class="card-body">
+    <div class="card border-0 shadow-sm rounded-4 text-center mt-4" style="background: linear-gradient(to bottom right, #ffffff, #f8fafc);">
+        <div class="card-body p-5">
             <div class="empty-state py-5">
-                <div class="empty-state-icon"><i class="fas fa-user-slash"></i></div>
-                <h5>No Matches Found</h5>
-                <p class="text-muted">
+                <div class="empty-state-icon mb-4" style="font-size: 4rem; color: #cbd5e1;">
+                    <i class="fas fa-user-slash"></i>
+                </div>
+                <h4 class="fw-bold text-dark mb-3">No Roommate Suggestions Yet</h4>
+                <p class="text-muted mx-auto" style="max-width: 500px; font-size: 1.05rem;">
                     <?php if ($minScore > 0 || $deptFilter !== 'ALL'): ?>
-                        Try lowering the minimum score or clearing the department filter.
+                        We couldn't find any matches matching your current filters. Try lowering the minimum score or exploring other departments.
                     <?php else: ?>
-                        No roommate matches available yet. Complete your profile (preferences, budget, department) for better matching.
+                        Your perfect roommate might not have signed up yet, or your profile needs more details for our matching engine to work effectively.
                     <?php endif; ?>
                 </p>
-                <a href="<?= BASE_URL ?>/pages/student/profile.php" class="btn btn-outline-primary btn-sm">Update My Profile</a>
+                <div class="mt-4">
+                    <a href="<?= BASE_URL ?>/pages/student/profile.php" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm hover-lift">
+                        <i class="fas fa-user-edit me-2"></i>Update My Preferences
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -181,27 +194,42 @@ include ROOT . '/includes/sidebar.php';
 
                 <!-- Score -->
                 <div class="text-center mb-3">
-                    <div class="score-badge <?= $scoreClass ?>" style="font-size:20px;width:56px;height:56px;margin:0 auto;"><?= (int)$m['MATCH_SCORE'] ?></div>
-                    <div class="text-muted small mt-1">Compatibility Score</div>
+                    <div class="score-badge <?= $scoreClass ?> shadow-sm" style="font-size:22px;width:64px;height:64px;margin:0 auto; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                        <?= (int)$m['MATCH_SCORE'] ?><span style="font-size: 14px;">%</span>
+                    </div>
+                    <?php
+                        $matchLabel = 'Low Match';
+                        $labelColor = 'text-muted';
+                        if ($m['MATCH_SCORE'] >= 85) { $matchLabel = 'Excellent Match'; $labelColor = 'text-success fw-bold'; }
+                        elseif ($m['MATCH_SCORE'] >= 70) { $matchLabel = 'Great Match'; $labelColor = 'text-primary fw-bold'; }
+                        elseif ($m['MATCH_SCORE'] >= 50) { $matchLabel = 'Good Match'; $labelColor = 'text-info fw-bold'; }
+                    ?>
+                    <div class="small mt-2 <?= $labelColor ?>"><?= $matchLabel ?></div>
                 </div>
 
                 <!-- Score bar -->
-                <div class="score-bar-wrapper mb-3">
-                    <div class="score-bar">
-                        <div class="score-bar-fill" data-score="<?= (int)$m['MATCH_SCORE'] ?>"></div>
+                <div class="score-bar-wrapper mb-3" style="height: 6px; background-color: #f1f5f9; border-radius: 10px; overflow: hidden;">
+                    <div class="score-bar" style="height: 100%;">
+                        <div class="score-bar-fill <?= $scoreClass ?>" style="height: 100%; width: <?= (int)$m['MATCH_SCORE'] ?>%; border-radius: 10px; transition: width 1s ease-in-out;"></div>
                     </div>
                 </div>
 
                 <!-- Match badges -->
-                <div class="d-flex justify-content-center gap-2 mb-2">
-                    <?php if ($m['DEPT_MATCH']): ?><span class="badge bg-primary-soft" style="font-size:10px;"><i class="fas fa-graduation-cap me-1"></i>Same Dept</span><?php endif; ?>
-                    <?php if ($m['BUDGET_MATCH']): ?><span class="badge bg-success-soft" style="font-size:10px;"><i class="fas fa-dollar-sign me-1"></i>Budget Fit</span><?php endif; ?>
-                    <?php if ((int)($m['PREF_OVERLAP']??0) > 0): ?><span class="badge bg-info text-white" style="font-size:10px;"><i class="fas fa-heart me-1"></i><?= (int)$m['PREF_OVERLAP'] ?> Prefs</span><?php endif; ?>
+                <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
+                    <?php if ($m['DEPT_MATCH']): ?><span class="badge bg-primary-soft rounded-pill px-3 py-2"><i class="fas fa-graduation-cap me-1"></i>Same Dept</span><?php endif; ?>
+                    <?php if ($m['BUDGET_MATCH']): ?><span class="badge bg-success-soft rounded-pill px-3 py-2"><i class="fas fa-dollar-sign me-1"></i>Budget Fit</span><?php endif; ?>
+                    <?php if ((int)($m['PREF_OVERLAP']??0) > 0): ?><span class="badge bg-info-soft rounded-pill px-3 py-2 text-info"><i class="fas fa-heart me-1"></i><?= (int)$m['PREF_OVERLAP'] ?> Shared Prefs</span><?php endif; ?>
                 </div>
 
                 <!-- Reason -->
                 <?php if (!empty($m['MATCH_REASON'])): ?>
-                <p class="text-muted text-center mb-3" style="font-size:11.5px;"><?= htmlspecialchars(truncate($m['MATCH_REASON'], 90), ENT_QUOTES, 'UTF-8') ?></p>
+                <div class="p-2 mb-3 rounded" style="background-color: #f8fafc; border-left: 3px solid var(--primary);">
+                    <p class="text-muted text-center mb-0" style="font-size:12px; font-style: italic;">
+                        <i class="fas fa-quote-left me-1" style="color: #cbd5e1; font-size: 10px;"></i>
+                        <?= htmlspecialchars(truncate($m['MATCH_REASON'], 100), ENT_QUOTES, 'UTF-8') ?>
+                        <i class="fas fa-quote-right ms-1" style="color: #cbd5e1; font-size: 10px;"></i>
+                    </p>
+                </div>
                 <?php endif; ?>
 
                 <!-- Status + Actions -->
@@ -211,20 +239,24 @@ include ROOT . '/includes/sidebar.php';
                 </div>
 
                 <?php if ($matchStatus === 'SUGGESTED'): ?>
-                <div class="d-flex gap-2 mt-3">
+                <div class="d-flex gap-2 mt-4 pt-3 border-top">
                     <form method="POST" class="flex-fill">
                         <?= csrfField() ?>
                         <input type="hidden" name="action"     value="update_status">
                         <input type="hidden" name="match_id"   value="<?= (int)$m['MATCH_ID'] ?>">
                         <input type="hidden" name="new_status" value="ACCEPTED">
-                        <button type="submit" class="btn btn-success btn-sm w-100"><i class="fas fa-handshake me-1"></i>Accept</button>
+                        <button type="submit" class="btn btn-success btn-sm w-100 rounded-pill hover-lift shadow-sm fw-semibold">
+                            <i class="fas fa-check-circle me-1"></i> Accept Match
+                        </button>
                     </form>
                     <form method="POST" class="flex-fill">
                         <?= csrfField() ?>
                         <input type="hidden" name="action"     value="update_status">
                         <input type="hidden" name="match_id"   value="<?= (int)$m['MATCH_ID'] ?>">
                         <input type="hidden" name="new_status" value="DECLINED">
-                        <button type="submit" class="btn btn-outline-danger btn-sm w-100"><i class="fas fa-times me-1"></i>Decline</button>
+                        <button type="submit" class="btn btn-outline-danger btn-sm w-100 rounded-pill hover-lift fw-semibold">
+                            <i class="fas fa-times-circle me-1"></i> Decline
+                        </button>
                     </form>
                 </div>
                 <?php endif; ?>
@@ -246,4 +278,7 @@ include ROOT . '/includes/sidebar.php';
 <style>
 .bg-primary-soft { background:var(--primary-light,#eff6ff); color:var(--primary,#4361ee); }
 .bg-success-soft { background:#ecfdf5; color:#059669; }
+.bg-info-soft { background:#cff4fc; }
+.hover-lift { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+.hover-lift:hover { transform: translateY(-2px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; }
 </style>

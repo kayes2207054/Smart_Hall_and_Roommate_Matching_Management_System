@@ -76,9 +76,38 @@ include ROOT . '/includes/sidebar.php';
                     <div class="avatar-circle" style="width:48px;height:48px;background:var(--primary);"><?=strtoupper(substr($s2Name,0,1))?></div>
                 </div>
                 <h6 class="fw-bold"><?=htmlspecialchars($s1Name)?> & <?=htmlspecialchars($s2Name)?></h6>
-                <div class="score-badge <?= $m['MATCH_SCORE']>=70?'score-high':($m['MATCH_SCORE']>=40?'score-medium':'score-low') ?> mx-auto mb-2" style="font-size:20px;width:56px;height:56px;"><?=(int)$m['MATCH_SCORE']?></div>
-                <div class="score-bar-wrapper mb-2"><div class="score-bar"><div class="score-bar-fill" style="width:<?=(int)$m['MATCH_SCORE']?>%"></div></div></div>
-                <div class="small text-muted mb-2 text-truncate" title="<?=htmlspecialchars($m['MATCH_REASON'])?>"><?=htmlspecialchars($m['MATCH_REASON'])?></div>
+                <!-- Score -->
+                <div class="text-center mb-3">
+                    <div class="score-badge <?= $m['MATCH_SCORE']>=70?'score-high':($m['MATCH_SCORE']>=40?'score-medium':'score-low') ?> shadow-sm" style="font-size:22px;width:64px;height:64px;margin:0 auto; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                        <?= (int)$m['MATCH_SCORE'] ?><span style="font-size: 14px;">%</span>
+                    </div>
+                    <?php
+                        $matchLabel = 'Low Match';
+                        $labelColor = 'text-muted';
+                        if ($m['MATCH_SCORE'] >= 85) { $matchLabel = 'Excellent Match'; $labelColor = 'text-success fw-bold'; }
+                        elseif ($m['MATCH_SCORE'] >= 70) { $matchLabel = 'Great Match'; $labelColor = 'text-primary fw-bold'; }
+                        elseif ($m['MATCH_SCORE'] >= 50) { $matchLabel = 'Good Match'; $labelColor = 'text-info fw-bold'; }
+                    ?>
+                    <div class="small mt-2 <?= $labelColor ?>"><?= $matchLabel ?></div>
+                </div>
+
+                <!-- Score bar -->
+                <div class="score-bar-wrapper mb-3" style="height: 6px; background-color: #f1f5f9; border-radius: 10px; overflow: hidden;">
+                    <div class="score-bar" style="height: 100%;">
+                        <div class="score-bar-fill <?= $m['MATCH_SCORE']>=70?'score-high':($m['MATCH_SCORE']>=40?'score-medium':'score-low') ?>" style="height: 100%; width: <?= (int)$m['MATCH_SCORE'] ?>%; border-radius: 10px; transition: width 1s ease-in-out;"></div>
+                    </div>
+                </div>
+
+                <!-- Reason -->
+                <?php if (!empty($m['MATCH_REASON'])): ?>
+                <div class="p-2 mb-3 rounded" style="background-color: #f8fafc; border-left: 3px solid var(--primary);">
+                    <p class="text-muted text-center mb-0" style="font-size:12px; font-style: italic;">
+                        <i class="fas fa-quote-left me-1" style="color: #cbd5e1; font-size: 10px;"></i>
+                        <?= htmlspecialchars(truncate($m['MATCH_REASON'], 100), ENT_QUOTES, 'UTF-8') ?>
+                        <i class="fas fa-quote-right ms-1" style="color: #cbd5e1; font-size: 10px;"></i>
+                    </p>
+                </div>
+                <?php endif; ?>
                 <?=statusBadge($m['MATCH_STATUS'])?>
             </div>
         </div>
