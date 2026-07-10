@@ -121,18 +121,19 @@ include ROOT . '/includes/sidebar.php';
 <div class="content-area">
 
     <!-- Page Heading -->
-    <div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
         <div>
-            <h1 class="page-heading mb-1">Dashboard</h1>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/pages/admin/dashboard.php">Home</a></li>
-                    <li class="breadcrumb-item active">Dashboard</li>
-                </ol>
-            </nav>
+            <h1 class="page-heading mb-1 fw-bold" style="color: var(--dark);">
+                <i class="fas fa-tachometer-alt me-2" style="color: var(--primary);"></i>Admin Dashboard
+            </h1>
+            <p class="text-muted mb-0" style="font-size: 0.95rem;">
+                Overview of system statistics, recent bookings, and hall occupancy.
+            </p>
         </div>
         <div class="d-flex align-items-center gap-2">
-            <span class="text-muted small"><i class="fas fa-clock me-1"></i><?= date('D, d M Y — h:i A') ?></span>
+            <span class="badge bg-light text-dark border px-3 py-2 rounded-pill shadow-sm">
+                <i class="fas fa-clock me-2 text-primary"></i><?= date('D, d M Y — h:i A') ?>
+            </span>
         </div>
     </div>
 
@@ -221,10 +222,10 @@ include ROOT . '/includes/sidebar.php';
                 </div>
 
                 <?php if (empty($recentRows)): ?>
-                <div class="empty-state py-5">
-                    <div class="empty-state-icon"><i class="fas fa-calendar-times"></i></div>
-                    <h5>No Bookings Yet</h5>
-                    <p>Booking requests will appear here once students start applying.</p>
+                <div class="empty-state py-5 text-center">
+                    <div class="empty-state-icon mb-3" style="font-size: 3rem; color: #cbd5e1;"><i class="fas fa-calendar-times"></i></div>
+                    <h5 class="fw-bold text-dark">No Bookings Yet</h5>
+                    <p class="text-muted mb-0">Booking requests will appear here once students start applying.</p>
                 </div>
                 <?php else: ?>
                 <div class="table-responsive">
@@ -291,10 +292,10 @@ include ROOT . '/includes/sidebar.php';
                 </div>
 
                 <?php if (empty($topMatches)): ?>
-                <div class="empty-state py-5">
-                    <div class="empty-state-icon"><i class="fas fa-user-slash"></i></div>
-                    <h5>No Matches Yet</h5>
-                    <p>Run the matching engine to generate roommate pairs.</p>
+                <div class="empty-state py-5 text-center">
+                    <div class="empty-state-icon mb-3" style="font-size: 3rem; color: #cbd5e1;"><i class="fas fa-user-slash"></i></div>
+                    <h5 class="fw-bold text-dark">No Matches Yet</h5>
+                    <p class="text-muted mb-0">Run the matching engine to generate roommate pairs.</p>
                 </div>
                 <?php else: ?>
                 <div style="padding: 8px 0;">
@@ -318,8 +319,8 @@ include ROOT . '/includes/sidebar.php';
                         <div class="avatar-circle flex-shrink-0" style="width:38px;height:38px;font-size:14px;background:linear-gradient(135deg,#7c3aed,#4cc9f0);" title="<?= htmlspecialchars($m['MATCHED_NAME'], ENT_QUOTES, 'UTF-8') ?>">
                             <?= $initials2 ?>
                         </div>
-                        <div class="score-badge <?= $scoreClass ?> flex-shrink-0">
-                            <?= (int)$m['MATCH_SCORE'] ?>
+                        <div class="score-badge <?= $scoreClass ?> flex-shrink-0 shadow-sm" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700;">
+                            <?= (int)$m['MATCH_SCORE'] ?><span style="font-size: 10px;">%</span>
                         </div>
                     </div>
                 <?php endforeach; ?>
