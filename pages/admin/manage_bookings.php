@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Approve Booking
         if ($action === 'approve_booking') {
-            $bookingId = (int)$_POST['booking_id'];
+            $bookingId = (int)($_POST['booking_id'] ?? 0);
             $remarks   = sanitize($_POST['admin_remarks'] ?? '');
 
             global $conn;
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Reject / Revoke Booking
         if ($action === 'reject_booking') {
-            $bookingId = (int)$_POST['booking_id'];
+            $bookingId = (int)($_POST['booking_id'] ?? 0);
             $remarks   = sanitize($_POST['admin_remarks'] ?? '');
 
             global $conn;

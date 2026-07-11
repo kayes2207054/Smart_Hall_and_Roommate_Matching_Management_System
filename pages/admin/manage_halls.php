@@ -23,10 +23,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $action = $_POST['action'] ?? '';
 
         if ($action === 'add_hall') {
-            $name     = sanitize($_POST['hall_name']);
-            $location = sanitize($_POST['hall_location']);
-            $cap      = (int)$_POST['total_capacity'];
-            $gender   = sanitize($_POST['gender_type']);
+            $name     = sanitize($_POST['hall_name'] ?? '');
+            $location = sanitize($_POST['hall_location'] ?? '');
+            $cap      = (int)($_POST['total_capacity'] ?? 0);
+            $gender   = sanitize($_POST['gender_type'] ?? '');
             $desc     = sanitize($_POST['description'] ?? '');
             $mgr      = (int)($_POST['managed_by'] ?? 0);
             $status   = sanitize($_POST['hall_status'] ?? 'ACTIVE');
@@ -45,11 +45,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($action === 'edit_hall') {
-            $hid      = (int)$_POST['hall_id'];
-            $name     = sanitize($_POST['hall_name']);
-            $location = sanitize($_POST['hall_location']);
-            $cap      = (int)$_POST['total_capacity'];
-            $gender   = sanitize($_POST['gender_type']);
+            $hid      = (int)($_POST['hall_id'] ?? 0);
+            $name     = sanitize($_POST['hall_name'] ?? '');
+            $location = sanitize($_POST['hall_location'] ?? '');
+            $cap      = (int)($_POST['total_capacity'] ?? 0);
+            $gender   = sanitize($_POST['gender_type'] ?? '');
             $desc     = sanitize($_POST['description'] ?? '');
             $mgr      = (int)($_POST['managed_by'] ?? 0);
             $status   = sanitize($_POST['hall_status'] ?? 'ACTIVE');
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($action === 'delete_hall') {
-            $hid = (int)$_POST['hall_id'];
+            $hid = (int)($_POST['hall_id'] ?? 0);
             $rcount = (int)oci_fetch_scalar('SELECT COUNT(*) FROM rooms WHERE hall_id=:h', [':h'=>$hid]);
             if ($rcount > 0) {
                 $errors[] = 'Cannot delete hall containing rooms.';

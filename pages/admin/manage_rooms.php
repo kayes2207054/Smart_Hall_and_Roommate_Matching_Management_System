@@ -25,12 +25,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $action = $_POST['action'] ?? '';
 
         if ($action === 'add_room') {
-            $hid   = (int)$_POST['hall_id'];
-            $rnum  = sanitize($_POST['room_number']);
-            $rtype = sanitize($_POST['room_type']);
+            $hid   = (int)($_POST['hall_id'] ?? 0);
+            $rnum  = sanitize($_POST['room_number'] ?? '');
+            $rtype = sanitize($_POST['room_type'] ?? '');
             $cap   = (int)($_POST['capacity'] ?? capForType($rtype));
-            $floor = (int)$_POST['floor_number'];
-            $rent  = (float)$_POST['monthly_rent'];
+            $floor = (int)($_POST['floor_number'] ?? 0);
+            $rent  = (float)($_POST['monthly_rent'] ?? 0);
             $fac   = sanitize($_POST['facilities'] ?? '');
             $stat  = sanitize($_POST['room_status'] ?? 'ACTIVE');
 
@@ -69,10 +69,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($action === 'edit_room') {
-            $rid   = (int)$_POST['room_id'];
-            $rtype = sanitize($_POST['room_type']);
-            $floor = (int)$_POST['floor_number'];
-            $rent  = (float)$_POST['monthly_rent'];
+            $rid   = (int)($_POST['room_id'] ?? 0);
+            $rtype = sanitize($_POST['room_type'] ?? '');
+            $floor = (int)($_POST['floor_number'] ?? 0);
+            $rent  = (float)($_POST['monthly_rent'] ?? 0);
             $fac   = sanitize($_POST['facilities'] ?? '');
             $stat  = sanitize($_POST['room_status'] ?? 'ACTIVE');
             
@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($action === 'delete_room') {
-            $rid = (int)$_POST['room_id'];
+            $rid = (int)($_POST['room_id'] ?? 0);
             $b = (int)oci_fetch_scalar('SELECT COUNT(*) FROM seats WHERE room_id=:r AND seat_status!=\'AVAILABLE\'', [':r'=>$rid]);
             if ($b > 0) $errors[] = 'Cannot delete room with booked or occupied seats.';
             else {

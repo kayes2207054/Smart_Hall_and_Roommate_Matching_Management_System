@@ -23,8 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $action = $_POST['action'] ?? '';
 
         if ($action === 'add_seat') {
-            $rid = (int)$_POST['room_id'];
-            $lbl = sanitize($_POST['seat_label']);
+            $rid = (int)($_POST['room_id'] ?? 0);
+            $lbl = sanitize($_POST['seat_label'] ?? '');
             $st  = sanitize($_POST['seat_status'] ?? 'AVAILABLE');
             
             if(empty($errors)) {
@@ -37,9 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($action === 'edit_seat') {
-            $sid = (int)$_POST['seat_id'];
-            $lbl = sanitize($_POST['seat_label']);
-            $st  = sanitize($_POST['seat_status']);
+            $sid = (int)($_POST['seat_id'] ?? 0);
+            $lbl = sanitize($_POST['seat_label'] ?? '');
+            $st  = sanitize($_POST['seat_status'] ?? '');
             $stu = (int)($_POST['current_student_id'] ?? 0);
             
             if(empty($errors)) {
@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($action === 'unassign_seat') {
-            $sid = (int)$_POST['seat_id'];
+            $sid = (int)($_POST['seat_id'] ?? 0);
             global $conn;
             
             // Find if there is an APPROVED booking for this seat to properly revoke it
@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($action === 'delete_seat') {
-            $sid = (int)$_POST['seat_id'];
+            $sid = (int)($_POST['seat_id'] ?? 0);
             $r = oci_fetch_one_assoc('SELECT room_id, seat_status FROM seats WHERE seat_id=:s', [':s'=>$sid]);
             if ($r && $r['SEAT_STATUS'] !== 'AVAILABLE') $errors[] = 'Cannot delete a booked or occupied seat.';
             else if ($r) {

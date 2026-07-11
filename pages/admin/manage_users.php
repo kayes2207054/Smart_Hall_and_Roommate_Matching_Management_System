@@ -24,10 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Add User
         if ($action === 'add_user') {
-            $name   = sanitize($_POST['full_name']);
-            $email  = sanitize($_POST['email']);
+            $name   = sanitize($_POST['full_name'] ?? '');
+            $email  = sanitize($_POST['email'] ?? '');
             $pass   = $_POST['password'] ?? '';
-            $role   = sanitize($_POST['role_name']);
+            $role   = sanitize($_POST['role_name'] ?? '');
             $dept   = sanitize($_POST['department'] ?? '');
             $phone  = sanitize($_POST['phone'] ?? '');
             $sid    = sanitize($_POST['student_id_no'] ?? '');
@@ -57,10 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Edit User
         if ($action === 'edit_user') {
-            $editId = (int)$_POST['user_id'];
-            $name   = sanitize($_POST['full_name']);
-            $email  = sanitize($_POST['email']);
-            $role   = sanitize($_POST['role_name']);
+            $editId = (int)($_POST['user_id'] ?? 0);
+            $name   = sanitize($_POST['full_name'] ?? '');
+            $email  = sanitize($_POST['email'] ?? '');
+            $role   = sanitize($_POST['role_name'] ?? '');
             $pass   = $_POST['password'] ?? '';
             $dept   = sanitize($_POST['department'] ?? '');
             $phone  = sanitize($_POST['phone'] ?? '');
@@ -103,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Delete User
         if ($action === 'delete_user') {
-            $delId = (int)$_POST['user_id'];
+            $delId = (int)($_POST['user_id'] ?? 0);
             if ($delId === $uid) $errors[] = 'Cannot delete your own account.';
             else {
                 $bCount = (int)oci_fetch_scalar('SELECT COUNT(*) FROM bookings WHERE student_id=:u', [':u'=>$delId]);
@@ -119,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Toggle Status
         if ($action === 'toggle_status') {
-            $tId = (int)$_POST['user_id'];
+            $tId = (int)($_POST['user_id'] ?? 0);
             if ($tId === $uid) $errors[] = 'Cannot toggle your own status.';
             else {
                 $cur = oci_fetch_scalar('SELECT account_status FROM users WHERE user_id=:u', [':u'=>$tId]);
