@@ -31,7 +31,7 @@ The Oracle database utilizes a robust relational schema supported by advanced PL
 - Browse halls, rooms, and available seats.
 - Submit seat booking requests.
 - Track booking history and status.
-- View AI-generated roommate matches based on compatibility.
+- View Compatibility-based roommate match recommendations.
 - Receive system notifications regarding bookings.
 
 ### 🏢 Hall Admin
@@ -95,12 +95,12 @@ NestSync/
    ```
 4. **Run the Application:**
    Open your browser and navigate to `http://localhost/NestSync`.
-   - **System Admin Login:** `admin@nestsync.com` / `password`
-   - **Student Login:** `student@nestsync.com` / `password`
+   - **System Admin Login:** `admin@nestsync.edu` / `password`
+   - **Student Login:** `rahim@nestsync.edu` / `password`
 
 ## 📸 Screenshots
 
-> *(Placeholder for UI Screenshots — Add actual image links before final submission)*
+Add actual project screenshots before final submission.
 
 ### 1. Landing Page
 ![Landing Page Screenshot](assets/images/placeholder.png)
@@ -120,10 +120,24 @@ NestSync/
 - **Maintenance Ticketing System:** Students can report room issues directly to Hall Admins.
 - **Mobile Application:** A dedicated Android/iOS version of NestSync.
 
-## 👥 Team Members
-- **[Team Member Name 1]** — [Role / ID]
-- **[Team Member Name 2]** — [Role / ID]
-- **[Team Member Name 3]** — [Role / ID]
+## 👨‍💻 Developer
+
+**Md. Imrul Kayes**
+
+- Roll: 2207054
+- Department: Computer Science and Engineering
+- University: Khulna University of Engineering & Technology (KUET)
+
+Responsibilities:
+- Oracle Database Design
+- SQL & PL/SQL Development
+- Backend Development (Core PHP)
+- Frontend Development
+- UI/UX Design
+- Roommate Matching System
+- Seat Booking Workflow
+- Reports & Analytics
+- Testing & Documentation
 
 ---
 *Developed as a Database Management Systems Project.*
