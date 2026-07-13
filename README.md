@@ -1,7 +1,19 @@
-# NestSync — Smart Hall & Roommate Matching Management System
+<div align="center">
+  <h1>NestSync — Smart Hall & Roommate Matching Management System</h1>
+  <p>
+    <img src="https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP" />
+    <img src="https://img.shields.io/badge/Oracle-F80000?style=for-the-badge&logo=oracle&logoColor=white" alt="Oracle Database" />
+    <img src="https://img.shields.io/badge/Bootstrap_5-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white" alt="Bootstrap 5" />
+    <img src="https://img.shields.io/badge/Educational-Project-000000?style=for-the-badge&logo=github&logoColor=white" alt="Educational Project" />
+  </p>
+</div>
+
+---
 
 ## 📖 Project Overview
-NestSync is a comprehensive and intelligent web-based management system designed to streamline university hall administration, student accommodation bookings, and roommate matching. By leveraging a sophisticated Oracle Database backend and a modern PHP-driven frontend, NestSync eliminates manual paperwork and introduces automated, data-driven roommate pairing based on student preferences, budget, and academic department.
+NestSync is a comprehensive and intelligent web-based management system designed to streamline university hall administration, student accommodation bookings, and roommate matching. 
+
+By leveraging a sophisticated Oracle Database backend and a modern PHP-driven frontend, NestSync eliminates manual paperwork and introduces automated, data-driven roommate pairing based on student preferences, budget, and academic department.
 
 ## ✨ Key Features
 - **Smart Roommate Matching Engine:** Automatically calculates compatibility scores between students to suggest the best roommate pairs based on lifestyle preferences, budget, and department.
@@ -12,10 +24,18 @@ NestSync is a comprehensive and intelligent web-based management system designed
 - **Robust Security:** Form validation, CSRF protection, secure password hashing, and role-based access control.
 
 ## 🛠️ Technology Stack
-- **Frontend:** HTML5, Vanilla CSS3 (Custom Design System), JavaScript (ES6+), Bootstrap 5 (Layout & Components), FontAwesome 6 (Icons), Google Fonts (Inter)
-- **Backend:** Core PHP (PHP 8.x recommended)
-- **Database:** Oracle SQL & PL/SQL (accessed via OCI8 extension)
-- **Architecture:** Procedural/Modular PHP Architecture
+- **Frontend:** 
+  - HTML5 & Vanilla CSS3 (Custom Design System)
+  - JavaScript (ES6+)
+  - Bootstrap 5 (Layout & Components)
+  - FontAwesome 6 (Icons)
+  - Google Fonts (Inter)
+- **Backend:** 
+  - Core PHP (PHP 8.x recommended)
+- **Database:** 
+  - Oracle SQL & PL/SQL (accessed via OCI8 extension)
+- **Architecture:** 
+  - Procedural/Modular PHP Architecture
 
 ## 🗄️ Database Design Summary
 The Oracle database utilizes a robust relational schema supported by advanced PL/SQL features:
@@ -95,24 +115,23 @@ NestSync/
    ```
 4. **Run the Application:**
    Open your browser and navigate to `http://localhost/NestSync`.
-   - **System Admin Login:** `admin@nestsync.edu` / `password`
-   - **Student Login:** `rahim@nestsync.edu` / `password`
+
+### 🔑 Demo Accounts
+Use the following seeded credentials to log in:
+- **System Admin:** `admin@nestsync.edu` (Password: `password`)
+- **Student:** `rahim@nestsync.edu` (Password: `password`)
 
 ## 📸 Screenshots
 
-Add actual project screenshots before final submission.
+Project screenshots will be added before the final submission.
 
-### 1. Landing Page
-![Landing Page Screenshot](assets/images/placeholder.png)
-
-### 2. Student Dashboard
-![Student Dashboard Screenshot](assets/images/placeholder.png)
-
-### 3. Roommate Matching Interface
-![Roommate Matching Screenshot](assets/images/placeholder.png)
-
-### 4. Admin Analytics & Occupancy
-![Admin Analytics Screenshot](assets/images/placeholder.png)
+- Landing Page
+- Student Dashboard
+- Browse Halls
+- Roommate Matching
+- Admin Dashboard
+- Manage Bookings
+- Reports & Analytics
 
 ## 🔮 Future Improvements
 - **Payment Gateway Integration:** Direct online payment for monthly rent and admission fees.
@@ -123,17 +142,15 @@ Add actual project screenshots before final submission.
 ## 👨‍💻 Developer
 
 **Md. Imrul Kayes**
+- **Roll:** 2207054
+- **Department:** Computer Science and Engineering
+- **University:** Khulna University of Engineering & Technology (KUET)
 
-- Roll: 2207054
-- Department: Computer Science and Engineering
-- University: Khulna University of Engineering & Technology (KUET)
-
-Responsibilities:
+**Responsibilities:**
 - Oracle Database Design
 - SQL & PL/SQL Development
 - Backend Development (Core PHP)
-- Frontend Development
-- UI/UX Design
+- Frontend Development & UI/UX Design
 - Roommate Matching System
 - Seat Booking Workflow
 - Reports & Analytics
